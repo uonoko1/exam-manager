@@ -19,6 +19,8 @@ class Module(environment: Environment, configuration: Configuration)
     bind(classOf[UlidGenerator])
       .to(classOf[UlidGeneratorImpl])
       .asEagerSingleton()
-    bind(classOf[Evaluator]).to(classOf[QuartileEvaluator]).asEagerSingleton()
+    bind(classOf[Evaluator])
+      .to(classOf[QuartileEvaluator])
+      .asEagerSingleton()
   }
 }
