@@ -8,5 +8,5 @@ object StudentIdDto {
   def fromDomain(studentId: StudentId): StudentIdDto = StudentIdDto(
     studentId.value
   )
-  def toDomain(dto: StudentIdDto): StudentId = StudentId(dto.value)
+  def toDomain(dto: StudentIdDto): StudentId = StudentId.create(dto.value)
 }

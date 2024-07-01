@@ -1,6 +1,6 @@
-package dto.infrastructure.examResult.valueObject
+package dto.infrastructure.exam.valueObject
 
-import domain.examResult.valueObject.ExamId
+import domain.exam.valueObject.ExamId
 
 case class ExamIdDto(value: String)
 
