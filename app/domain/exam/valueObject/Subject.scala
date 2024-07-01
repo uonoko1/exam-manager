@@ -1,4 +1,4 @@
-package domain.examResult.valueObject
+package domain.exam.valueObject
 
 sealed trait Subject {
   val value: String
