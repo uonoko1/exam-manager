@@ -2,7 +2,7 @@ package dto.infrastructure.examResult.valueObject
 
 import domain.examResult.valueObject.StudentId
 
-case class StudentIdDto(value: Int)
+case class StudentIdDto(value: String)
 
 object StudentIdDto {
   def fromDomain(studentId: StudentId): StudentIdDto = StudentIdDto(
