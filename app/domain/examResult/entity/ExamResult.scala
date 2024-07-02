@@ -11,13 +11,4 @@ case class ExamResult(
     evaluation: Evaluation = NotEvaluated,
     createdAt: CreatedAt,
     updatedAt: UpdatedAt
-) {
-  def evaluateScore(score: Int): String = {
-    score match {
-      case s if s >= 90 => "Excellent!"
-      case s if s >= 75 => "Good Job!"
-      case s if s >= 50 => "Passed"
-      case _            => "Failed"
-    }
-  }
-}
+)
