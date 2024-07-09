@@ -1,16 +1,19 @@
 package dto.infrastructure.exam.entity
 
+import domain.exam.entity.Exam
+import domain.exam.valueObject._
+import domain.utils.dateTime.{CreatedAt, UpdatedAt}
 import dto.infrastructure.exam.valueObject._
-import dto.infrastructure.utils._
-import domain.exam.entity
+import dto.infrastructure.utils.dateTime.{CreatedAtDto, UpdatedAtDto}
+import java.time.ZonedDateTime
 
 case class ExamDto(
-    examIdDto: ExamIdDto,
-    subjectDto: SubjectDto,
-    dueDateDto: DueDateDto,
-    evaluationStatusDto: EvaluationStatusDto,
-    createdAtDto: CreatedAtDto,
-    updatedAtDto: UpdatedAtDto
+    examIdDto: String,
+    subjectDto: String,
+    dueDateDto: ZonedDateTime,
+    evaluationStatusDto: String,
+    createdAtDto: ZonedDateTime,
+    updatedAtDto: ZonedDateTime
 )
 
 object ExamDto {
@@ -26,18 +29,18 @@ object ExamDto {
   def toDomain(dto: ExamDto): Either[String, Exam] = {
     for {
       examId <- Right(ExamId.create(dto.examIdDto))
-      subject <- Subject.create(dto.subject)
+      subject <- Subject.create(dto.subjectDto)
       dueDate <- Right(DueDate.create(dto.dueDateDto))
-      evaluationStatus <- EvaluationStatus.crate(dto.evaluationStatusDto)
-      createdAt <- Right(CreatedAt.create(dto.createdAt))
-      updatedAt <- Right(UpdatedAt.create(dto.updatedAt))
+      evaluationStatus <- EvaluationStatus.create(dto.evaluationStatusDto)
+      createdAt <- Right(CreatedAt.create(dto.createdAtDto))
+      updatedAt <- Right(UpdatedAt.create(dto.updatedAtDto))
     } yield Exam(
       examId = examId,
       subject = subject,
       dueDate = dueDate,
       evaluationStatus = evaluationStatus,
       createdAt = createdAt,
-      uodatedAt = updatedAt
+      updatedAt = updatedAt
     )
   }
 }

@@ -1,19 +1,22 @@
 package dto.infrastructure.examResult.entity
 
 import domain.examResult.entity.ExamResult
-import domain.examResult.valueObject._
 import domain.exam.valueObject._
+import domain.examResult.valueObject._
+import domain.utils.dateTime.{CreatedAt, UpdatedAt}
 import dto.infrastructure.examResult.valueObject._
+import dto.infrastructure.exam.valueObject._
+import dto.infrastructure.utils.dateTime.{CreatedAtDto, UpdatedAtDto}
 import java.time.ZonedDateTime
 
 case class ExamResultDto(
-    examResultId: ExamResultIdDto,
-    examId: ExamIdDto,
-    score: ScoreDto,
-    studentId: StudentIdDto,
-    evaluation: EvaluationDto,
-    createdAt: CreatedAtDto,
-    updatedAt: UpdatedAtDto
+    examResultId: String,
+    examId: String,
+    score: Int,
+    studentId: String,
+    evaluation: String,
+    createdAt: ZonedDateTime,
+    updatedAt: ZonedDateTime
 )
 
 object ExamResultDto {

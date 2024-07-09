@@ -6,7 +6,7 @@ case class EvaluationStatusDto(value: String)
 
 object EvaluationStatusDto {
   def fromDomain(evaluationStatus: EvaluationStatus): EvaluationStatusDto =
-    EvaluationStatusDto(EvaluationStatus.value)
-  def toDomain(dto: EvaluationStatusDto): EvaluationStatus =
+    EvaluationStatusDto(evaluationStatus.value)
+  def toDomain(dto: EvaluationStatusDto): Either[String, EvaluationStatus] =
     EvaluationStatus.create(dto.value)
 }
