@@ -1,4 +1,4 @@
-package dto.request.examResult.valueObject
+package dto.request.exam.valueObject
 
 import domain.exam.valueObject.Subject
 
