@@ -2,9 +2,15 @@ package domain.evaluator.impl
 
 import domain.evaluator.`trait`.Evaluator
 import domain.examResult.entity.ExamResult
+import domain.exam.entity.Exam
+import domain.examResult.valueObject._
 
 class QuartileEvaluator extends Evaluator {
-  def evaluate(results: Seq[ExamResult]): Map[ExamResult, String] = {
+
+  def evaluate(
+      exam: Exam,
+      results: Seq[ExamResult]
+  ): Map[ExamResult, String] = {
     val sortedResults = results.sortBy(_.score.value)
     val q1Index = sortedResults.length / 4
     val q2Index = sortedResults.length / 2
@@ -16,10 +22,10 @@ class QuartileEvaluator extends Evaluator {
 
     results.map { result =>
       val evaluation = result.score.value match {
-        case Score if score >= q3Score => "Excellent"
-        case Score if score >= q2Score => "Good Job"
-        case Score if score >= q1Score => "Passed"
-        case _                         => "Failed"
+        case _ if result.score.value >= q3Score => "Excellent"
+        case _ if result.score.value >= q2Score => "Good Job"
+        case _ if result.score.value >= q1Score => "Passed"
+        case _                                  => "Failed"
       }
       result -> evaluation
     }.toMap
