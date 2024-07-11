@@ -28,7 +28,7 @@ class ExamTable(tag: Tag)(implicit val profile: JdbcProfile)
     evaluationStatus,
     createdAt,
     updatedAt
-  ) <> ((ExamDto.apply _).tupled, ExamDto.unapply)
+  ).mapTo[ExamDto]
 }
 
 object ExamTable {

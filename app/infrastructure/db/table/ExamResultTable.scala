@@ -7,12 +7,10 @@ import slick.jdbc.MySQLProfile.api._
 import dto.infrastructure.examResult.entity.ExamResultDto
 import java.time.ZonedDateTime
 
-// ExamResultテーブルの定義
 class ExamResultTable(tag: Tag)(implicit val profile: JdbcProfile)
     extends Table[ExamResultDto](tag, "exam_results") {
   import profile.api._
 
-  // テーブルの列定義
   def examResultId: Rep[String] = column[String]("exam_result_id", O.PrimaryKey)
   def examId: Rep[String] = column[String]("exam_id", NotNull)
   def score: Rep[Int] = column[Int]("score", NotNull)
@@ -31,10 +29,9 @@ class ExamResultTable(tag: Tag)(implicit val profile: JdbcProfile)
     evaluation,
     createdAt,
     updatedAt
-  ) <> ((ExamResultDto.apply _).tupled, ExamResultDto.unapply)
+  ).mapTo[ExamResultDto]
 }
 
-// ExamResultTableオブジェクト
 object ExamResultTable {
   val examResults = TableQuery[ExamResultTable]
 }
