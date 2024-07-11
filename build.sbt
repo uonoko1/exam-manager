@@ -5,21 +5,15 @@ version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.13.14"
+scalaVersion := "3.4.1"
 
 libraryDependencies ++= Seq(
   guice,
-  "org.playframework.twirl" %% "twirl-api" % "2.0.5",
-  "com.typesafe.play" %% "play-slick" % "5.0.0",
-  "com.typesafe.play" %% "play-slick-evolutions" % "5.0.0",
-  "mysql" % "mysql-connector-java" % "8.0.27",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.0" % Test,
-  "org.wvlet.airframe" %% "airframe-ulid" % "23.4.2"
-)
-
-dependencyOverrides ++= Seq(
-  "org.playframework.twirl" %% "twirl-api" % "2.0.5",
-  "org.scala-lang.modules" %% "scala-xml" % "2.2.0"
+  "org.playframework" %% "play-slick" % "6.1.0",
+  "org.playframework" %% "play-slick-evolutions" % "6.1.0",
+  "mysql" % "mysql-connector-java" % "8.0.33",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
+  "org.wvlet.airframe" %% "airframe-ulid" % "24.3.0"
 )
 
 // Adds additional packages into Twirl

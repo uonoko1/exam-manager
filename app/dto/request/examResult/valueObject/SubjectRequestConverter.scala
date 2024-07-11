@@ -1,6 +1,6 @@
 package dto.request.examResult.valueObject
 
-import domain.examResult.valueObject.Subject
+import domain.exam.valueObject.Subject
 
 object SubjectRequestConverter {
   def validateAndCreate(value: String): Either[String, Subject] = {
