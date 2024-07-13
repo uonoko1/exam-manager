@@ -10,3 +10,8 @@ target
 /.bloop/
 /.metals/
 /.vscode/
+project/target/
+project/.bloop/
+project/.metals/
+project/project/
+project/metals.sbt
