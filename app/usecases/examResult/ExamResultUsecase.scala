@@ -15,6 +15,9 @@ import javax.inject._
 import scala.concurrent.{Future, ExecutionContext}
 import java.time.{ZonedDateTime, DayOfWeek, LocalDate}
 import java.time.temporal.{ChronoUnit, TemporalAdjusters}
+import cats.data.EitherT
+import cats.implicits._
+import scala.concurrent.Future
 
 @Singleton
 class ExamResultUsecase @Inject() (
@@ -54,33 +57,38 @@ class ExamResultUsecase @Inject() (
   }
 
   def evaluateResults: Future[Unit] = {
-    val (startDate, endDate) = evaluationPeriodProvider.getEvaluationPeriod
-
-    examRepository.findByDueDate(startDate, endDate).flatMap {
-      case Right(exams) =>
-        val examEvaluationsFutures = exams.map { exam =>
-          examResultRepository.findByExamId(exam.examId).map {
-            case Right(results) =>
-              val evaluations = evaluator.evaluate(exam, results)
-              (exam, results, evaluations)
-            case Left(error) => throw new Exception(error)
+    (for {
+      (startDate, endDate) <- EitherT.pure[Future, String](
+        evaluationPeriodProvider.getEvaluationPeriod
+      )
+      exams <- EitherT(examRepository.findByDueDate(startDate, endDate))
+      examEvaluations <- EitherT
+        .liftF(Future.sequence {
+          exams.map { exam =>
+            (for {
+              results <- EitherT(examResultRepository.findByExamId(exam.examId))
+              evaluations = evaluator.evaluate(exam, results)
+            } yield (exam, results, evaluations)).value
           }
-        }
-
-        Future.sequence(examEvaluationsFutures).flatMap { examEvaluations =>
-          val updateFutures =
-            examEvaluations.map { case (exam, results, evaluations) =>
-              examResultUpdater
-                .updateEvaluations(results, evaluations)
-                .flatMap {
-                  case Right(updatedResults) =>
-                    examUpdater.updateEvaluations(exam, updatedResults, results)
-                  case Left(error) => throw new Exception(error)
-                }
-            }
-          Future.sequence(updateFutures).map(_ => ())
-        }
-      case Left(error) => Future.failed(new Exception(error))
+        })
+        .map(_.collect { case Right(value) => value })
+      _ <- EitherT
+        .liftF(Future.sequence {
+          examEvaluations.map { case (exam, results, evaluations) =>
+            (for {
+              updatedResults <- EitherT(
+                examResultUpdater.updateEvaluations(results, evaluations)
+              )
+              _ <- EitherT.liftF(
+                examUpdater.updateEvaluations(exam, updatedResults, results)
+              )
+            } yield ()).value
+          }
+        })
+        .map(_.collect { case Right(value) => value })
+    } yield ()).value.map {
+      case Right(_)    => ()
+      case Left(error) => throw new Exception(error)
     }
   }
 }
