@@ -13,7 +13,8 @@ libraryDependencies ++= Seq(
   "org.playframework" %% "play-slick-evolutions" % "6.1.0",
   "mysql" % "mysql-connector-java" % "8.0.33",
   "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
-  "org.wvlet.airframe" %% "airframe-ulid" % "24.3.0"
+  "org.wvlet.airframe" %% "airframe-ulid" % "24.3.0",
+  "org.typelevel" %% "cats-core" % "2.6.1"
 )
 
 // Adds additional packages into Twirl
