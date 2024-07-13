@@ -36,18 +36,19 @@ class ExamResultUsecase @Inject() (
       score: Score,
       studentId: StudentId
   ): Future[Either[String, ExamResult]] = {
-    val examResultId = ulidGenerator.generate()
-    val examResult = ExamResult(
-      ExamResultId.create(examResultId),
-      examId,
-      score,
-      studentId,
-      Evaluation.NotEvaluated,
-      CreatedAt(ZonedDateTime.now()),
-      UpdatedAt(ZonedDateTime.now())
-    )
-
-    examResultRepository.save(examResult)
+    (for {
+      examResultId <- EitherT.rightT[Future, String](ulidGenerator.generate())
+      examResult = ExamResult(
+        ExamResultId.create(examResultId),
+        examId,
+        score,
+        studentId,
+        Evaluation.NotEvaluated,
+        CreatedAt(ZonedDateTime.now()),
+        UpdatedAt(ZonedDateTime.now())
+      )
+      savedExamResult <- EitherT(examResultRepository.save(examResult))
+    } yield savedExamResult).value
   }
 
   def findById(
