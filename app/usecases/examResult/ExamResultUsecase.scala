@@ -57,7 +57,7 @@ class ExamResultUsecase @Inject() (
     examResultRepository.findById(examId)
   }
 
-  def evaluateResults: Future[Unit] = {
+  def evaluateResults: Future[Either[String, Unit]] = {
     (for {
       (startDate, endDate) <- EitherT.pure[Future, String](
         evaluationPeriodProvider.getEvaluationPeriod
@@ -87,9 +87,6 @@ class ExamResultUsecase @Inject() (
           }
         })
         .map(_.collect { case Right(value) => value })
-    } yield ()).value.map {
-      case Right(_)    => ()
-      case Left(error) => throw new Exception(error)
-    }
+    } yield ()).value
   }
 }
