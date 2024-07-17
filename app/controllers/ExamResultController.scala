@@ -18,13 +18,15 @@ import play.api.libs.json.Json
 @Singleton
 class ExamResultController @Inject() (
     cc: ControllerComponents,
-    examResultUsecase: ExamResultUsecase
+    examResultUsecase: ExamResultUsecase,
+    examResultFieldConverter: ExamResultFieldConverter,
+    examIdRequestConverter: ExamIdRequestConverter
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc) {
 
   def saveExamResult: Action[JsValue] = Action.async(parse.json) {
     implicit request =>
-      ExamResultFieldConverter.convertAndValidate(request.body) match {
+      examResultFieldConverter.convertAndValidate(request.body) match {
         case Right(
               (
                 examId: ExamId,
@@ -48,7 +50,8 @@ class ExamResultController @Inject() (
                 s"Failed to save exam result: ${ex.getMessage}"
               )
             }
-        case Right(_) =>
+        case Right(v) =>
+          val a = v
           Future.successful(BadRequest("Invalid parameters"))
         case Left(errors) =>
           Future.successful(BadRequest(s"Invalid parameters: $errors"))
@@ -57,7 +60,7 @@ class ExamResultController @Inject() (
 
   def getExamResult(examId: String): Action[AnyContent] = Action.async {
     implicit request =>
-      ExamIdRequestConverter.validateAndCreate(examId) match {
+      examIdRequestConverter.validateAndCreate(examId) match {
         case Right(examId) =>
           examResultUsecase
             .findById(examId)

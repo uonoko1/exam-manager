@@ -21,6 +21,9 @@ import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import usecases.exam.logic.examUpdater.impl.ExamUpdaterImpl
 import domain.evaluationPeriodProvider.`trait`.EvaluationPeriodProvider
 import domain.evaluationPeriodProvider.impl.WeeklyEvaluationPeriodProvider
+import dto.request.exam.valueObject.ExamIdRequestConverter
+import dto.request.examResult.valueObject.StudentIdRequestConverter
+import dto.request.examResult.jsonParser.ExamResultFieldConverter
 
 class Module(environment: Environment, configuration: Configuration)
     extends AbstractModule {
@@ -50,5 +53,8 @@ class Module(environment: Environment, configuration: Configuration)
     bind(classOf[Scheduler])
       .toProvider(classOf[SchedulerProvider])
       .asEagerSingleton()
+    bind(classOf[ExamIdRequestConverter]).asEagerSingleton()
+    bind(classOf[StudentIdRequestConverter]).asEagerSingleton()
+    bind(classOf[ExamResultFieldConverter]).asEagerSingleton()
   }
 }
