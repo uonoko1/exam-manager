@@ -25,9 +25,6 @@ object JsonFieldParser {
   def toTuple(
       validatedFields: List[Any]
   ): Tuple = {
-    val filteredFields = validatedFields.collect {
-      case Right(value) if value != null => value
-    }
-    filteredFields.foldRight[Tuple](EmptyTuple)(_ *: _)
+    validatedFields.foldRight[Tuple](EmptyTuple)(_ *: _)
   }
 }

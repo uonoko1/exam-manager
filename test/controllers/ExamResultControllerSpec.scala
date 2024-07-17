@@ -1,32 +1,57 @@
 package controllers
 
-import org.scalatestplus.play._
-import play.api.test._
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import usecases.examResult.ExamResultUsecase
-import scala.concurrent.Future
+import play.api.libs.json.JsValue
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatest.matchers.must.Matchers._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
+
+import usecases.examResult.ExamResultUsecase
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
-import play.api.libs.json.Json
-import dto.response.examResult.entity.ExamResultResponseDto
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import domain.utils.dateTime.CreatedAt
-import domain.utils.dateTime.UpdatedAt
-import java.time.ZonedDateTime
+import domain.utils.dateTime.{CreatedAt, UpdatedAt}
 import domain.examResult.entity.ExamResult
+import dto.response.examResult.entity.ExamResultResponseDto
+
+import play.api.libs.json.Json
+import scala.concurrent.Future
+import java.time.ZonedDateTime
+import dto.request.examResult.jsonParser.ExamResultFieldConverter
+import dto.request.exam.valueObject.ExamIdRequestConverter
 
 class ExamResultControllerSpec
     extends PlaySpec
     with GuiceOneAppPerSuite
-    with Injecting {
+    with Injecting
+    with ScalaFutures {
+
+  implicit val defaultPatience: PatienceConfig = PatienceConfig(
+    timeout = Span(300, Seconds),
+    interval = Span(500, Millis)
+  )
+
   val mockUsecase: ExamResultUsecase = mock(classOf[ExamResultUsecase])
+  val mockExamResultFieldConverter: ExamResultFieldConverter = mock(
+    classOf[ExamResultFieldConverter]
+  )
+  val mockExamIdRequestConverter: ExamIdRequestConverter = mock(
+    classOf[ExamIdRequestConverter]
+  )
 
   override def fakeApplication() = new GuiceApplicationBuilder()
-    .overrides(bind[ExamResultUsecase].toInstance(mockUsecase))
+    .overrides(
+      bind[ExamResultUsecase].toInstance(mockUsecase),
+      bind[ExamResultFieldConverter].toInstance(mockExamResultFieldConverter),
+      bind[ExamIdRequestConverter].toInstance(mockExamIdRequestConverter)
+    )
     .build()
 
   "ExamResultController POST /exam-result" should {
@@ -54,18 +79,32 @@ class ExamResultControllerSpec
       val jsonBody = Json.obj(
         "examId" -> "exam-id",
         "subject" -> "Math",
-        "score" -> 85,
+        "score" -> "85",
         "studentId" -> "student-id"
       )
+
+      when(mockExamResultFieldConverter.convertAndValidate(any[JsValue]))
+        .thenReturn(
+          Right(
+            (
+              ExamId("exam-id"),
+              Subject.Math,
+              Score(85),
+              StudentId("student-id")
+            )
+          )
+        )
 
       val request = FakeRequest(POST, "/exam-result")
         .withJsonBody(jsonBody)
       val result = route(app, request).get
 
-      status(result) mustBe OK
-      contentAsJson(result) mustBe Json.toJson(
-        ExamResultResponseDto.fromDomain(examResult)
-      )
+      whenReady(result) { res =>
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.toJson(
+          ExamResultResponseDto.fromDomain(examResult)
+        )
+      }
     }
 
     "return BadRequest for invalid parameters" in {
@@ -76,11 +115,16 @@ class ExamResultControllerSpec
         "studentId" -> "student-id"
       )
 
+      when(mockExamResultFieldConverter.convertAndValidate(any[JsValue]))
+        .thenReturn(Left("Invalid parameters"))
+
       val request = FakeRequest(POST, "/exam-result")
         .withJsonBody(jsonBody)
       val result = route(app, request).get
 
-      status(result) mustBe BAD_REQUEST
+      whenReady(result) { res =>
+        status(result) mustBe BAD_REQUEST
+      }
     }
   }
 
@@ -99,30 +143,46 @@ class ExamResultControllerSpec
       when(mockUsecase.findById(any[ExamId]))
         .thenReturn(Future.successful(Right(Some(examResult))))
 
+      when(mockExamIdRequestConverter.validateAndCreate(any[String]))
+        .thenReturn(Right(ExamId("exam-id")))
+
       val request = FakeRequest(GET, "/exam-result/exam-id")
       val result = route(app, request).get
 
-      status(result) mustBe OK
-      contentAsJson(result) mustBe Json.toJson(
-        ExamResultResponseDto.fromDomain(examResult)
-      )
+      whenReady(result) { res =>
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.toJson(
+          ExamResultResponseDto.fromDomain(examResult)
+        )
+      }
     }
 
     "return NotFound for non-existing exam result" in {
       when(mockUsecase.findById(any[ExamId]))
         .thenReturn(Future.successful(Right(None)))
 
+      when(mockExamIdRequestConverter.validateAndCreate(any[String]))
+        .thenReturn(Right(ExamId("exam-id")))
+
       val request = FakeRequest(GET, "/exam-result/exam-id")
       val result = route(app, request).get
 
-      status(result) mustBe NOT_FOUND
+      whenReady(result) { res =>
+        status(result) mustBe NOT_FOUND
+      }
     }
 
     "return BadRequest for invalid exam ID" in {
-      val request = FakeRequest(GET, "/exam-result/invalid-exam-id")
+      val invalidExamId = "invalid-ulid"
+      when(mockExamIdRequestConverter.validateAndCreate(any[String]))
+        .thenReturn(Left("Invalid exam ID"))
+
+      val request = FakeRequest(GET, s"/exam-result/$invalidExamId")
       val result = route(app, request).get
 
-      status(result) mustBe BAD_REQUEST
+      whenReady(result) { res =>
+        status(result) mustBe BAD_REQUEST
+      }
     }
   }
 }
