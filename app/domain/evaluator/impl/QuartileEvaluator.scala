@@ -10,7 +10,7 @@ class QuartileEvaluator extends Evaluator {
   def evaluate(
       exam: Exam,
       results: Seq[ExamResult]
-  ): Map[ExamResult, String] = {
+  ): Map[ExamResult, Evaluation] = {
     val sortedResults = results.sortBy(_.score.value)
     val q1Index = sortedResults.length / 4
     val q2Index = sortedResults.length / 2
@@ -22,10 +22,10 @@ class QuartileEvaluator extends Evaluator {
 
     results.map { result =>
       val evaluation = result.score.value match {
-        case _ if result.score.value >= q3Score => "Excellent"
-        case _ if result.score.value >= q2Score => "Good Job"
-        case _ if result.score.value >= q1Score => "Passed"
-        case _                                  => "Failed"
+        case _ if result.score.value >= q3Score => Evaluation.Excellent
+        case _ if result.score.value >= q2Score => Evaluation.GoodJob
+        case _ if result.score.value >= q1Score => Evaluation.Passed
+        case _                                  => Evaluation.Failed
       }
       result -> evaluation
     }.toMap
