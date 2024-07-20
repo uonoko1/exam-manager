@@ -1,10 +1,13 @@
-package dto.request.utils
+package dto.request.utils.jsonFieldParser.impl
 
+import javax.inject.Singleton
 import play.api.libs.json.JsValue
+import dto.request.utils.jsonFieldParser.`trait`.JsonFieldParser
 
-object JsonFieldParser {
+@Singleton
+class JsonFieldParserImpl extends JsonFieldParser {
 
-  def extractFields(
+  override def extractFields(
       json: JsValue,
       createParseList: Map[String, String] => List[Either[String, Any]]
   ): Either[String, List[Any]] = {
@@ -22,7 +25,7 @@ object JsonFieldParser {
     }
   }
 
-  def toTuple(
+  override def toTuple(
       validatedFields: List[Any]
   ): Tuple = {
     validatedFields.foldRight[Tuple](EmptyTuple)(_ *: _)

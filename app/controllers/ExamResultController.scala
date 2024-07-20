@@ -5,13 +5,13 @@ import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 import usecases.examResult.ExamResultUsecase
 import scala.util.{Try, Success, Failure}
-import dto.request.examResult.jsonParser.ExamResultFieldConverter
+import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
 import play.api.libs.json.JsValue
 import views.html.defaultpages.badRequest
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import dto.infrastructure.exam.valueObject.ExamIdDto
-import dto.request.exam.valueObject.ExamIdRequestConverter
+import dto.request.exam.valueObject.examIdRequestConverter.`trait`.ExamIdRequestConverter
 import dto.response.examResult.entity.ExamResultResponseDto
 import play.api.libs.json.Json
 

@@ -24,8 +24,8 @@ import dto.response.examResult.entity.ExamResultResponseDto
 import play.api.libs.json.Json
 import scala.concurrent.Future
 import java.time.ZonedDateTime
-import dto.request.examResult.jsonParser.ExamResultFieldConverter
-import dto.request.exam.valueObject.ExamIdRequestConverter
+import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
+import dto.request.exam.valueObject.examIdRequestConverter.`trait`.ExamIdRequestConverter
 
 class ExamResultControllerSpec
     extends PlaySpec
