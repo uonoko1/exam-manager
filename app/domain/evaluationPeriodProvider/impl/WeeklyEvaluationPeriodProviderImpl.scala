@@ -5,9 +5,10 @@ import java.time.ZonedDateTime
 import java.time.temporal.TemporalAdjusters
 import java.time.DayOfWeek
 
-class WeeklyEvaluationPeriodProvider extends EvaluationPeriodProvider {
-  override def getEvaluationPeriod: (ZonedDateTime, ZonedDateTime) = {
-    val now = ZonedDateTime.now()
+class WeeklyEvaluationPeriodProviderImpl extends EvaluationPeriodProvider {
+  override def getEvaluationPeriod(
+      now: ZonedDateTime
+  ): (ZonedDateTime, ZonedDateTime) = {
     val startOfWeek = now
       .minusWeeks(1)
       .toLocalDate

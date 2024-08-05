@@ -11,4 +11,4 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 # ExamResultController endpoints
 POST    /exam-result             controllers.ExamResultController.saveExamResult
-GET     /exam-result/:examId     controllers.ExamResultController.getExamResult(examId: String)
+GET     /exam-result/:examResultId     controllers.ExamResultController.getExamResult(examResultId: String)

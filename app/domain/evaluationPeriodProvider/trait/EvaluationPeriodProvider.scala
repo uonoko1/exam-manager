@@ -3,5 +3,5 @@ package domain.evaluationPeriodProvider.`trait`
 import java.time.ZonedDateTime
 
 trait EvaluationPeriodProvider {
-  def getEvaluationPeriod: (ZonedDateTime, ZonedDateTime)
+  def getEvaluationPeriod(now: ZonedDateTime): (ZonedDateTime, ZonedDateTime)
 }

@@ -11,6 +11,7 @@ import usecases.examResult.logic.examResultUpdater.`trait`.ExamResultUpdater
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import usecases.exam.repository.ExamRepository
 import utils.UlidGenerator
+import utils.SystemClock
 import javax.inject._
 import scala.concurrent.{Future, ExecutionContext}
 import java.time.{ZonedDateTime, DayOfWeek, LocalDate}
@@ -27,7 +28,8 @@ class ExamResultUsecase @Inject() (
     evaluationPeriodProvider: EvaluationPeriodProvider,
     examResultUpdater: ExamResultUpdater,
     examUpdater: ExamUpdater,
-    ulidGenerator: UlidGenerator
+    ulidGenerator: UlidGenerator,
+    systemClock: SystemClock
 )(implicit ec: ExecutionContext) {
 
   def saveExamResult(
@@ -44,23 +46,23 @@ class ExamResultUsecase @Inject() (
         score,
         studentId,
         Evaluation.NotEvaluated,
-        CreatedAt(ZonedDateTime.now()),
-        UpdatedAt(ZonedDateTime.now())
+        CreatedAt(systemClock.now()),
+        UpdatedAt(systemClock.now())
       )
       savedExamResult <- EitherT(examResultRepository.save(examResult))
     } yield savedExamResult).value
   }
 
   def findById(
-      examId: ExamId
+      examResultId: ExamResultId
   ): Future[Either[String, Option[ExamResult]]] = {
-    examResultRepository.findById(examId)
+    examResultRepository.findById(examResultId)
   }
 
-  def evaluateResults: Future[Either[String, Unit]] = {
+  def evaluateResults(): Future[Either[String, Unit]] = {
     (for {
       (startDate, endDate) <- EitherT.pure[Future, String](
-        evaluationPeriodProvider.getEvaluationPeriod
+        evaluationPeriodProvider.getEvaluationPeriod((systemClock.now()))
       )
       exams <- EitherT(examRepository.findByDueDate(startDate, endDate))
       examEvaluations <- EitherT
@@ -78,7 +80,11 @@ class ExamResultUsecase @Inject() (
           examEvaluations.map { case (exam, results, evaluations) =>
             (for {
               updatedResults <- EitherT(
-                examResultUpdater.updateEvaluations(results, evaluations)
+                examResultUpdater.updateEvaluations(
+                  results,
+                  evaluations,
+                  (systemClock.now())
+                )
               )
               _ <- EitherT.liftF(
                 examUpdater.updateEvaluations(exam, updatedResults, results)

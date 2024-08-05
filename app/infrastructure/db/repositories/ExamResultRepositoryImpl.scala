@@ -13,6 +13,7 @@ import scala.concurrent.duration._
 import org.apache.pekko.actor.Scheduler
 import java.sql.SQLTransientConnectionException
 import java.time.ZonedDateTime
+import domain.examResult.valueObject.ExamResultId
 
 @Singleton
 class ExamResultRepositoryImpl @Inject() (
@@ -40,10 +41,10 @@ class ExamResultRepositoryImpl @Inject() (
   }
 
   override def findById(
-      examId: ExamId
+      examResultId: ExamResultId
   ): Future[Either[String, Option[ExamResult]]] = {
     val query = ExamResultTable.examResults
-      .filter(_.examId === examId.value)
+      .filter(_.examResultId === examResultId.value)
       .result
       .headOption
     Retry

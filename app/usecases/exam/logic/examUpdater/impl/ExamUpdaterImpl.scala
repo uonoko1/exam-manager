@@ -9,8 +9,12 @@ import domain.utils.dateTime.UpdatedAt
 import usecases.exam.repository.ExamRepository
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import java.time.ZonedDateTime
+import utils.SystemClock
 
-class ExamUpdaterImpl @Inject() (examRepository: ExamRepository)(implicit
+class ExamUpdaterImpl @Inject() (
+    examRepository: ExamRepository,
+    systemClock: SystemClock
+)(implicit
     ec: ExecutionContext
 ) extends ExamUpdater {
 
@@ -29,7 +33,7 @@ class ExamUpdaterImpl @Inject() (examRepository: ExamRepository)(implicit
 
     val updatedExam = exam.copy(
       evaluationStatus = newStatus,
-      updatedAt = UpdatedAt(ZonedDateTime.now())
+      updatedAt = UpdatedAt(systemClock.now())
     )
     examRepository.update(updatedExam)
   }

@@ -15,13 +15,13 @@ import infrastructure.providers._
 import infrastructure.db.repositories._
 import org.apache.pekko.actor.Scheduler
 import domain.evaluator.`trait`.Evaluator
-import domain.evaluator.impl.QuartileEvaluator
+import domain.evaluator.impl.QuartileEvaluatorImpl
 import usecases.examResult.logic.examResultUpdater.`trait`.ExamResultUpdater
 import usecases.examResult.logic.examResultUpdater.impl.ExamResultUpdaterImpl
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import usecases.exam.logic.examUpdater.impl.ExamUpdaterImpl
 import domain.evaluationPeriodProvider.`trait`.EvaluationPeriodProvider
-import domain.evaluationPeriodProvider.impl.WeeklyEvaluationPeriodProvider
+import domain.evaluationPeriodProvider.impl.WeeklyEvaluationPeriodProviderImpl
 import dto.request.exam.valueObject.examIdRequestConverter.impl.ExamIdRequestConverterImpl
 import dto.request.exam.valueObject.examIdRequestConverter.`trait`.ExamIdRequestConverter
 import dto.request.examResult.valueObject.studentIdRequestConverter.impl.StudentIdRequestConverterImpl
@@ -46,6 +46,10 @@ import dto.request.examResult.valueObject.scoreRequestConverter.`trait`.ScoreReq
 import dto.utils.dateTime.createdAtRequestConverter.`trait`.CreatedAtRequestConverter
 import dto.utils.dateTime.updatedAtRequestConverter.`trait`.UpdatedAtRequestConverter
 import dto.utils.dateTime.dateTimeConverter.`trait`.DateTimeConverter
+import dto.request.utils.jsonFieldParser.`trait`.JsonFieldParser
+import dto.request.utils.jsonFieldParser.impl.JsonFieldParserImpl
+import domain.evaluationPeriodProvider.impl.WeeklyEvaluationPeriodProviderImpl
+import utils.{SystemClock, SystemClockImpl}
 
 class Module(environment: Environment, configuration: Configuration)
     extends AbstractModule {
@@ -61,7 +65,7 @@ class Module(environment: Environment, configuration: Configuration)
       .to(classOf[UlidGeneratorImpl])
       .asEagerSingleton()
     bind(classOf[Evaluator])
-      .to(classOf[QuartileEvaluator])
+      .to(classOf[QuartileEvaluatorImpl])
       .asEagerSingleton()
     bind(classOf[ExamResultUpdater])
       .to(classOf[ExamResultUpdaterImpl])
@@ -70,7 +74,7 @@ class Module(environment: Environment, configuration: Configuration)
       .to(classOf[ExamUpdaterImpl])
       .asEagerSingleton()
     bind(classOf[EvaluationPeriodProvider])
-      .to(classOf[WeeklyEvaluationPeriodProvider])
+      .to(classOf[WeeklyEvaluationPeriodProviderImpl])
       .asEagerSingleton()
     bind(classOf[Scheduler])
       .toProvider(classOf[SchedulerProvider])
@@ -111,5 +115,7 @@ class Module(environment: Environment, configuration: Configuration)
     bind(classOf[DateTimeConverter])
       .to(classOf[DateTimeConverterImpl])
       .asEagerSingleton()
+    bind(classOf[JsonFieldParser]).to(classOf[JsonFieldParserImpl])
+    bind(classOf[SystemClock]).to(classOf[SystemClockImpl]).asEagerSingleton()
   }
 }

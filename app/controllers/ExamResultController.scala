@@ -11,7 +11,7 @@ import views.html.defaultpages.badRequest
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import dto.infrastructure.exam.valueObject.ExamIdDto
-import dto.request.exam.valueObject.examIdRequestConverter.`trait`.ExamIdRequestConverter
+import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
 import dto.response.examResult.entity.ExamResultResponseDto
 import play.api.libs.json.Json
 
@@ -20,7 +20,7 @@ class ExamResultController @Inject() (
     cc: ControllerComponents,
     examResultUsecase: ExamResultUsecase,
     examResultFieldConverter: ExamResultFieldConverter,
-    examIdRequestConverter: ExamIdRequestConverter
+    examResultIdRequestConverter: ExamResultIdRequestConverter
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc) {
 
@@ -50,25 +50,24 @@ class ExamResultController @Inject() (
                 s"Failed to save exam result: ${ex.getMessage}"
               )
             }
-        case Right(v) =>
-          val a = v
+        case Right(_) =>
           Future.successful(BadRequest("Invalid parameters"))
         case Left(errors) =>
           Future.successful(BadRequest(s"Invalid parameters: $errors"))
       }
   }
 
-  def getExamResult(examId: String): Action[AnyContent] = Action.async {
+  def getExamResult(examResultId: String): Action[AnyContent] = Action.async {
     implicit request =>
-      examIdRequestConverter.validateAndCreate(examId) match {
-        case Right(examId) =>
+      examResultIdRequestConverter.validateAndCreate(examResultId) match {
+        case Right(validatedExamResultId) =>
           examResultUsecase
-            .findById(examId)
+            .findById(validatedExamResultId)
             .map {
               case Right(Some(examResult)) =>
                 Ok(Json.toJson(ExamResultResponseDto.fromDomain(examResult)))
               case Right(None) =>
-                NotFound(s"Exam result with id $examId not found")
+                NotFound(s"Exam result with id $examResultId not found")
               case Left(error) =>
                 BadRequest(s"Failed to fetch exam result: $error")
             }

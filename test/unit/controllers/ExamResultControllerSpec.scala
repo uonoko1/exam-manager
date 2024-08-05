@@ -5,52 +5,50 @@ import play.api.test.Helpers._
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.scalatest.matchers.must.Matchers._
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 
-import usecases.examResult.ExamResultUsecase
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import domain.utils.dateTime.{CreatedAt, UpdatedAt}
 import domain.examResult.entity.ExamResult
+import usecases.examResult.ExamResultUsecase
 import dto.response.examResult.entity.ExamResultResponseDto
+import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
+import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
+import utils.CustomPatience
 
-import play.api.libs.json.Json
 import scala.concurrent.Future
 import java.time.ZonedDateTime
-import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
-import dto.request.exam.valueObject.examIdRequestConverter.`trait`.ExamIdRequestConverter
 
 class ExamResultControllerSpec
     extends PlaySpec
     with GuiceOneAppPerSuite
     with Injecting
-    with ScalaFutures {
-
-  implicit val defaultPatience: PatienceConfig = PatienceConfig(
-    timeout = Span(300, Seconds),
-    interval = Span(500, Millis)
-  )
+    with ScalaFutures
+    with CustomPatience {
 
   val mockUsecase: ExamResultUsecase = mock(classOf[ExamResultUsecase])
   val mockExamResultFieldConverter: ExamResultFieldConverter = mock(
     classOf[ExamResultFieldConverter]
   )
-  val mockExamIdRequestConverter: ExamIdRequestConverter = mock(
-    classOf[ExamIdRequestConverter]
+  val mockExamResultIdRequestConverter: ExamResultIdRequestConverter = mock(
+    classOf[ExamResultIdRequestConverter]
   )
 
   override def fakeApplication() = new GuiceApplicationBuilder()
     .overrides(
       bind[ExamResultUsecase].toInstance(mockUsecase),
       bind[ExamResultFieldConverter].toInstance(mockExamResultFieldConverter),
-      bind[ExamIdRequestConverter].toInstance(mockExamIdRequestConverter)
+      bind[ExamResultIdRequestConverter]
+        .toInstance(mockExamResultIdRequestConverter)
     )
     .build()
 
@@ -128,8 +126,8 @@ class ExamResultControllerSpec
     }
   }
 
-  "ExamResultController GET /exam-result/:examId" should {
-    "return OK for existing exam result" in {
+  "ExamResultController GET /exam-result/:examResultId" should {
+    "return an ExamResult corresponding to the examResultId" in {
       val examResult = ExamResult(
         ExamResultId.create("test-id"),
         ExamId.create("exam-id"),
@@ -140,13 +138,13 @@ class ExamResultControllerSpec
         UpdatedAt(ZonedDateTime.now())
       )
 
-      when(mockUsecase.findById(any[ExamId]))
+      when(mockUsecase.findById(any[ExamResultId]))
         .thenReturn(Future.successful(Right(Some(examResult))))
 
-      when(mockExamIdRequestConverter.validateAndCreate(any[String]))
-        .thenReturn(Right(ExamId("exam-id")))
+      when(mockExamResultIdRequestConverter.validateAndCreate(any[String]))
+        .thenReturn(Right(ExamResultId("examResult-id")))
 
-      val request = FakeRequest(GET, "/exam-result/exam-id")
+      val request = FakeRequest(GET, "/exam-result/examResult-id")
       val result = route(app, request).get
 
       whenReady(result) { res =>
@@ -157,14 +155,14 @@ class ExamResultControllerSpec
       }
     }
 
-    "return NotFound for non-existing exam result" in {
-      when(mockUsecase.findById(any[ExamId]))
+    "return NotFound for non-existing examResult" in {
+      when(mockUsecase.findById(any[ExamResultId]))
         .thenReturn(Future.successful(Right(None)))
 
-      when(mockExamIdRequestConverter.validateAndCreate(any[String]))
-        .thenReturn(Right(ExamId("exam-id")))
+      when(mockExamResultIdRequestConverter.validateAndCreate(any[String]))
+        .thenReturn(Right(ExamResultId("examResult-id")))
 
-      val request = FakeRequest(GET, "/exam-result/exam-id")
+      val request = FakeRequest(GET, "/exam-result/examResult-id")
       val result = route(app, request).get
 
       whenReady(result) { res =>
@@ -172,9 +170,9 @@ class ExamResultControllerSpec
       }
     }
 
-    "return BadRequest for invalid exam ID" in {
+    "return BadRequest for invalid examId" in {
       val invalidExamId = "invalid-ulid"
-      when(mockExamIdRequestConverter.validateAndCreate(any[String]))
+      when(mockExamResultIdRequestConverter.validateAndCreate(any[String]))
         .thenReturn(Left("Invalid exam ID"))
 
       val request = FakeRequest(GET, s"/exam-result/$invalidExamId")

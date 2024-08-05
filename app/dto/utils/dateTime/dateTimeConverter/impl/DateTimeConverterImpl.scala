@@ -1,17 +1,23 @@
 package dto.utils.dateTime.dateTimeConverter.impl
 
 import dto.utils.dateTime.dateTimeConverter.`trait`.DateTimeConverter
-import java.time.ZonedDateTime
 import scala.util.Try
+import java.time.{ZonedDateTime, OffsetDateTime, Instant}
 import javax.inject._
 
 @Singleton
-class DateTimeConverterImpl @Inject() () extends DateTimeConverter {
+class DateTimeConverterImpl extends DateTimeConverter {
   override def stringToZonedDateTime(
       dateTimeString: String
   ): Either[String, ZonedDateTime] = {
-    Try(ZonedDateTime.parse(dateTimeString)).toEither.left.map(e =>
-      s"Invalid input. Error: ${e.getMessage}"
-    )
+    if (Try(Instant.parse(dateTimeString)).isSuccess) {
+      Left("Invalid input. Error: Instant format is not allowed.")
+    } else if (Try(OffsetDateTime.parse(dateTimeString)).isSuccess) {
+      Left("Invalid input. Error: OffsetDateTime format is not allowed.")
+    } else {
+      Try(ZonedDateTime.parse(dateTimeString)).toEither.left.map(e =>
+        s"Invalid input. Error: ${e.getMessage}"
+      )
+    }
   }
 }

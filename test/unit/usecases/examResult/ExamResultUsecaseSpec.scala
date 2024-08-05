@@ -1,12 +1,11 @@
-package usecases
+package usecases.examResult
 
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+
 import domain.examResult.entity.ExamResult
 import domain.exam.valueObject.ExamId
 import domain.examResult.valueObject._
@@ -14,19 +13,23 @@ import domain.exam.valueObject._
 import domain.evaluator.`trait`.Evaluator
 import domain.evaluationPeriodProvider.`trait`.EvaluationPeriodProvider
 import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.exam.entity.Exam
 import usecases.examResult.repository.ExamResultRepository
 import usecases.examResult.logic.examResultUpdater.`trait`.ExamResultUpdater
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import usecases.exam.repository.ExamRepository
-import utils.UlidGenerator
+import utils.{UlidGenerator, SystemClock}
+import utils.CustomPatience
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import java.time.ZonedDateTime
-import usecases.examResult.ExamResultUsecase
-import domain.exam.entity.Exam
 
 class ExamResultUsecaseSpec
     extends AnyWordSpec
     with ScalaFutures
-    with Matchers {
+    with Matchers
+    with CustomPatience {
   val mockExamResultRepository = mock(classOf[ExamResultRepository])
   val mockExamRepository = mock(classOf[ExamRepository])
   val mockEvaluator = mock(classOf[Evaluator])
@@ -34,6 +37,7 @@ class ExamResultUsecaseSpec
   val mockExamResultUpdater = mock(classOf[ExamResultUpdater])
   val mockExamUpdater = mock(classOf[ExamUpdater])
   val mockUlidGenerator = mock(classOf[UlidGenerator])
+  val mockSystemClock = mock(classOf[SystemClock])
 
   val usecase = new ExamResultUsecase(
     mockExamResultRepository,
@@ -42,27 +46,31 @@ class ExamResultUsecaseSpec
     mockEvaluationPeriodProvider,
     mockExamResultUpdater,
     mockExamUpdater,
-    mockUlidGenerator
+    mockUlidGenerator,
+    mockSystemClock
   )
 
   "ExamResultUsecase#saveExamResult" should {
-    "save the ExamResult successfully" in {
+    "return the saved ExamResult when given valid input" in {
       val examId = ExamId("exam-id")
       val subject = Subject.Math
       val score = Score(85)
       val studentId = StudentId("student-id")
       val examResultId = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+      val fixedTime =
+        ZonedDateTime.parse("2024-07-21T12:00:00+09:00[Asia/Tokyo]")
       val examResult = ExamResult(
         ExamResultId(examResultId),
         examId,
         score,
         studentId,
         Evaluation.NotEvaluated,
-        CreatedAt(ZonedDateTime.now()),
-        UpdatedAt(ZonedDateTime.now())
+        CreatedAt(fixedTime),
+        UpdatedAt(fixedTime)
       )
 
       when(mockUlidGenerator.generate()).thenReturn(examResultId)
+      when(mockSystemClock.now()).thenReturn(fixedTime)
       when(mockExamResultRepository.save(any[ExamResult]))
         .thenReturn(Future.successful(Right(examResult)))
 
@@ -80,8 +88,11 @@ class ExamResultUsecaseSpec
       val score = Score(85)
       val studentId = StudentId("student-id")
       val examResultId = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+      val fixedTime =
+        ZonedDateTime.parse("2024-07-21T12:00:00+09:00[Asia/Tokyo]")
 
       when(mockUlidGenerator.generate()).thenReturn(examResultId)
+      when(mockSystemClock.now()).thenReturn(fixedTime)
       when(mockExamResultRepository.save(any[ExamResult]))
         .thenReturn(Future.successful(Left("Database error")))
 
@@ -94,12 +105,12 @@ class ExamResultUsecaseSpec
   }
 
   "ExamResultUsecase#findById" should {
-    "find the exam result by ID successfully" in {
-      val examId = ExamId("exam-id")
+    "return the ExamResult when given existing ExamId" in {
+      val examResultId = ExamResultId("examResult-id")
       val examResult = Some(
         ExamResult(
           ExamResultId("01ARZ3NDEKTSV4RRFFQ69G5FAV"),
-          examId,
+          ExamId("exam-id"),
           Score(85),
           StudentId("student-id"),
           Evaluation.NotEvaluated,
@@ -108,24 +119,24 @@ class ExamResultUsecaseSpec
         )
       )
 
-      when(mockExamResultRepository.findById(examId))
+      when(mockExamResultRepository.findById(examResultId))
         .thenReturn(Future.successful(Right(examResult)))
 
-      val result = usecase.findById(examId)
+      val result = usecase.findById(examResultId)
 
       whenReady(result) { res =>
         res mustBe Right(examResult)
-        verify(mockExamResultRepository).findById(examId)
+        verify(mockExamResultRepository).findById(examResultId)
       }
     }
 
     "handle repository findById failure" in {
-      val examId = ExamId("exam-id")
+      val examResultId = ExamResultId("exam-id")
 
-      when(mockExamResultRepository.findById(examId))
+      when(mockExamResultRepository.findById(examResultId))
         .thenReturn(Future.successful(Left("Database error")))
 
-      val result = usecase.findById(examId)
+      val result = usecase.findById(examResultId)
 
       whenReady(result) { res =>
         res mustBe Left("Database error")
@@ -134,9 +145,11 @@ class ExamResultUsecaseSpec
   }
 
   "ExamResultUsecase#evaluateResults" should {
-    "evaluate exam results successfully" in {
+    "evaluate examResults successfully" in {
       val startDate = ZonedDateTime.now().minusDays(7)
       val endDate = ZonedDateTime.now()
+      val fixedTime =
+        ZonedDateTime.parse("2024-07-21T12:00:00+09:00[Asia/Tokyo]")
       val exams = Seq(
         Exam(
           ExamId("exam-id"),
@@ -154,13 +167,13 @@ class ExamResultUsecaseSpec
           Score(85),
           StudentId("student-id"),
           Evaluation.NotEvaluated,
-          CreatedAt(ZonedDateTime.now()),
-          UpdatedAt(ZonedDateTime.now())
+          CreatedAt(fixedTime),
+          UpdatedAt(fixedTime)
         )
       )
       val evaluations = Map(examResults.head -> Evaluation.Excellent)
 
-      when(mockEvaluationPeriodProvider.getEvaluationPeriod)
+      when(mockEvaluationPeriodProvider.getEvaluationPeriod(any[ZonedDateTime]))
         .thenReturn((startDate, endDate))
       when(mockExamRepository.findByDueDate(startDate, endDate))
         .thenReturn(Future.successful(Right(exams)))
@@ -171,7 +184,8 @@ class ExamResultUsecaseSpec
       when(
         mockExamResultUpdater.updateEvaluations(
           any[Seq[ExamResult]],
-          any[Map[ExamResult, Evaluation]]
+          any[Map[ExamResult, Evaluation]],
+          any[ZonedDateTime]
         )
       )
         .thenReturn(Future.successful(Right(examResults)))
@@ -184,7 +198,7 @@ class ExamResultUsecaseSpec
       )
         .thenReturn(Future.successful(Right(exams.head)))
 
-      val result = usecase.evaluateResults
+      val result = usecase.evaluateResults()
 
       whenReady(result) { res =>
         res mustBe Right(())
@@ -195,12 +209,12 @@ class ExamResultUsecaseSpec
       val startDate = ZonedDateTime.now().minusDays(7)
       val endDate = ZonedDateTime.now()
 
-      when(mockEvaluationPeriodProvider.getEvaluationPeriod)
+      when(mockEvaluationPeriodProvider.getEvaluationPeriod(any[ZonedDateTime]))
         .thenReturn((startDate, endDate))
       when(mockExamRepository.findByDueDate(startDate, endDate))
         .thenReturn(Future.successful(Left("Database error")))
 
-      val result = usecase.evaluateResults
+      val result = usecase.evaluateResults()
 
       whenReady(result) { res =>
         res mustBe Left("Database error")

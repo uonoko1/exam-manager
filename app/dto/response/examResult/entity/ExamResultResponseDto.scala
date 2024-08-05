@@ -2,6 +2,7 @@ package dto.response.examResult.entity
 
 import domain.examResult.entity.ExamResult
 import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.JsValue
 
 case class ExamResultResponseDto(
     examResultId: String,
@@ -15,7 +16,17 @@ case class ExamResultResponseDto(
 
 object ExamResultResponseDto {
   implicit val writes: Writes[ExamResultResponseDto] =
-    Json.writes[ExamResultResponseDto]
+    new Writes[ExamResultResponseDto] {
+      def writes(dto: ExamResultResponseDto): JsValue = Json.obj(
+        "examResultId" -> dto.examResultId,
+        "examId" -> dto.examId,
+        "score" -> dto.score,
+        "studentId" -> dto.studentId,
+        "evaluation" -> dto.evaluation,
+        "createdAt" -> dto.createdAt,
+        "updatedAt" -> dto.updatedAt
+      )
+    }
 
   def fromDomain(examResult: ExamResult): ExamResultResponseDto =
     ExamResultResponseDto(
@@ -23,7 +34,7 @@ object ExamResultResponseDto {
       examId = examResult.examId.value,
       score = examResult.score.value,
       studentId = examResult.studentId.value,
-      evaluation = examResult.evaluation.toString,
+      evaluation = examResult.evaluation.value,
       createdAt = examResult.createdAt.value.toString,
       updatedAt = examResult.updatedAt.value.toString
     )

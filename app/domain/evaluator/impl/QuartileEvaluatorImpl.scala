@@ -5,12 +5,16 @@ import domain.examResult.entity.ExamResult
 import domain.exam.entity.Exam
 import domain.examResult.valueObject._
 
-class QuartileEvaluator extends Evaluator {
+class QuartileEvaluatorImpl extends Evaluator {
 
   def evaluate(
       exam: Exam,
       results: Seq[ExamResult]
   ): Map[ExamResult, Evaluation] = {
+    if (results.isEmpty) {
+      return Map.empty
+    }
+
     val sortedResults = results.sortBy(_.score.value)
     val q1Index = sortedResults.length / 4
     val q2Index = sortedResults.length / 2
