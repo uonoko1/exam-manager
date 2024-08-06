@@ -12,6 +12,7 @@ import scala.concurrent.duration._
 import org.apache.pekko.actor.Scheduler
 import java.sql.SQLTransientConnectionException
 import java.time.ZonedDateTime
+import domain.exam.valueObject.ExamId
 
 @Singleton
 class ExamRepositoryImpl @Inject() (
@@ -22,6 +23,43 @@ class ExamRepositoryImpl @Inject() (
 ) extends ExamRepository {
   import dbConfig._
   import profile.api._
+
+  override def save(exam: Exam): Future[Either[String, Exam]] = {
+    val dto = ExamDto.fromDomain(exam)
+    val query = ExamTable.exams += dto
+    Retry
+      .withRetry(run(query), 3, 1.second)(ec, scheduler)
+      .map(_ => Right(exam))
+      .recover {
+        case ex: SQLTransientConnectionException =>
+          Left("Database connection error")
+        case ex: Throwable => Left(ex.getMessage)
+      }
+  }
+
+  override def findById(
+      examId: ExamId
+  ): Future[Either[String, Option[Exam]]] = {
+    val query = ExamTable.exams
+      .filter(_.examId === examId.value)
+      .result
+      .headOption
+    Retry
+      .withRetry(run(query), 3, 1.second)(ec, scheduler)
+      .map {
+        case Some(dto) =>
+          ExamDto.toDomain(dto) match {
+            case Right(exam) => Right(Some(exam))
+            case Left(error) => Left(error)
+          }
+        case None => Right(None)
+      }
+      .recover {
+        case ex: SQLTransientConnectionException =>
+          Left("Database connection error")
+        case ex: Throwable => Left(ex.getMessage)
+      }
+  }
 
   override def findByDueDate(
       startDate: ZonedDateTime,
@@ -35,11 +73,14 @@ class ExamRepositoryImpl @Inject() (
       .withRetry(run(query), 3, 1.second)(ec, scheduler)
       .map { dtos =>
         val exams = dtos.map(ExamDto.toDomain)
-        val errors = exams.collect { case Left(error) => error }
+        val (errors, validExams) = exams.partitionMap(identity)
+
         if (errors.nonEmpty) {
           Left(errors.mkString(", "))
+        } else if (validExams.isEmpty) {
+          Left("No exams found for the given period")
         } else {
-          Right(exams.collect { case Right(exam) => exam })
+          Right(validExams)
         }
       }
       .recover {

@@ -16,24 +16,26 @@ class ExamResultUpdaterImpl @Inject() (
 
   override def updateEvaluations(
       results: Seq[ExamResult],
-      evaluations: Map[ExamResult, String]
+      evaluations: Map[ExamResult, Evaluation],
+      now: ZonedDateTime
   ): Future[Either[String, Seq[ExamResult]]] = {
     val updatedResults = results.map { result =>
-      evaluations(result) match {
-        case evaluationString =>
-          Evaluation.create(evaluationString) match {
-            case Right(evaluation) =>
-              result.copy(
-                evaluation = evaluation,
-                updatedAt = UpdatedAt(ZonedDateTime.now())
-              )
-            case Left(error) => throw new Exception(error)
-          }
+      evaluations.get(result) match {
+        case Some(evaluation) =>
+          result.copy(
+            evaluation = evaluation,
+            updatedAt = UpdatedAt(now)
+          )
+        case None => throw new Exception("Evaluation not found for result")
       }
     }
     Future
       .sequence(updatedResults.map(examResultRepository.update))
-      .map(_ => Right(updatedResults))
+      .map { resultSeq =>
+        val errors = resultSeq.collect { case Left(error) => error }
+        if (errors.nonEmpty) Left(errors.mkString(", "))
+        else Right(updatedResults)
+      }
       .recover { case ex => Left(ex.getMessage) }
   }
 }

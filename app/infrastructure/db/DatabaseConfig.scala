@@ -9,13 +9,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class DatabaseConfig @Inject() (
     protected val dbConfigProvider: DatabaseConfigProvider
 )(implicit ec: ExecutionContext) {
-  // Slickのデータベース設定を取得
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   val profile: JdbcProfile = dbConfig.profile
+  val db = dbConfig.db
 
-  import dbConfig._
   import profile.api._
 
-  // DBIOアクションを実行するためのヘルパーメソッド
   def run[T](action: DBIO[T]): Future[T] = db.run(action)
 }

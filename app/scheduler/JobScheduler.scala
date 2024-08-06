@@ -5,39 +5,58 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import org.apache.pekko.actor.ActorSystem
 import usecases.examResult.ExamResultUsecase
-import java.time.ZonedDateTime
+import utils.SystemClock
 
 @Singleton
 class JobScheduler @Inject() (
     actorSystem: ActorSystem,
-    examResultUsecase: ExamResultUsecase
+    examResultUsecase: ExamResultUsecase,
+    systemClock: SystemClock,
+    isTestMode: Boolean = false // テストモードフラグを追加
 )(implicit ec: ExecutionContext) {
 
-  private def calculateInitialDelay(): FiniteDuration = {
-    val now = ZonedDateTime.now()
-    val nextSunday = now
-      .`with`(
-        java.time.temporal.TemporalAdjusters
-          .nextOrSame(java.time.DayOfWeek.SUNDAY)
-      )
-      .withHour(24)
-      .withMinute(0)
-      .withSecond(0)
-    val duration = java.time.Duration.between(now, nextSunday)
-    FiniteDuration(duration.toMillis, MILLISECONDS)
+  def calculateInitialDelay(): FiniteDuration = {
+    if (isTestMode) {
+      Duration.Zero // テストモードでは遅延なし
+    } else {
+      val now = systemClock.now()
+      val nextSunday = now
+        .`with`(
+          java.time.temporal.TemporalAdjusters
+            .nextOrSame(java.time.DayOfWeek.SUNDAY)
+        )
+        .plusDays(1)
+        .withHour(0)
+        .withMinute(0)
+        .withSecond(0)
+        .withNano(0)
+      val duration = java.time.Duration.between(now, nextSunday)
+      FiniteDuration(duration.toMillis, MILLISECONDS)
+    }
   }
 
-  private val period: FiniteDuration = FiniteDuration(7, DAYS)
+  val period: FiniteDuration =
+    if (isTestMode) 1.second else FiniteDuration(7, DAYS)
 
-  actorSystem.scheduler.scheduleWithFixedDelay(
-    calculateInitialDelay(),
-    period
-  )(new Runnable {
-    def run(): Unit = {
-      examResultUsecase.evaluateResults.map {
-        case Right(_)    => println("Scheduled job completed successfully.")
-        case Left(error) => println(s"Scheduled job failed with error: $error")
+  private val scheduleRunnable: () => Unit = () => {
+    examResultUsecase.evaluateResults().map {
+      case Right(_)    => println("Scheduled job completed successfully.")
+      case Left(error) => println(s"Scheduled job failed with error: $error")
+    }
+  }
+
+  if (isTestMode) {
+    actorSystem.scheduler.scheduleOnce(calculateInitialDelay()) {
+      scheduleRunnable()
+    }
+  } else {
+    actorSystem.scheduler.scheduleWithFixedDelay(
+      calculateInitialDelay(),
+      period
+    ) {
+      new Runnable {
+        def run(): Unit = scheduleRunnable()
       }
     }
-  })
+  }
 }

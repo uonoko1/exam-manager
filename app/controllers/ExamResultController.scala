@@ -5,26 +5,28 @@ import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 import usecases.examResult.ExamResultUsecase
 import scala.util.{Try, Success, Failure}
-import dto.request.examResult.jsonParser.ExamResultFieldConverter
+import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
 import play.api.libs.json.JsValue
 import views.html.defaultpages.badRequest
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import dto.infrastructure.exam.valueObject.ExamIdDto
-import dto.request.exam.valueObject.ExamIdRequestConverter
+import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
 import dto.response.examResult.entity.ExamResultResponseDto
 import play.api.libs.json.Json
 
 @Singleton
 class ExamResultController @Inject() (
     cc: ControllerComponents,
-    examResultUsecase: ExamResultUsecase
+    examResultUsecase: ExamResultUsecase,
+    examResultFieldConverter: ExamResultFieldConverter,
+    examResultIdRequestConverter: ExamResultIdRequestConverter
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc) {
 
   def saveExamResult: Action[JsValue] = Action.async(parse.json) {
     implicit request =>
-      ExamResultFieldConverter.convertAndValidate(request.body) match {
+      examResultFieldConverter.convertAndValidate(request.body) match {
         case Right(
               (
                 examId: ExamId,
@@ -55,17 +57,17 @@ class ExamResultController @Inject() (
       }
   }
 
-  def getExamResult(examId: String): Action[AnyContent] = Action.async {
+  def getExamResult(examResultId: String): Action[AnyContent] = Action.async {
     implicit request =>
-      ExamIdRequestConverter.validateAndCreate(examId) match {
-        case Right(examId) =>
+      examResultIdRequestConverter.validateAndCreate(examResultId) match {
+        case Right(validatedExamResultId) =>
           examResultUsecase
-            .findById(examId)
+            .findById(validatedExamResultId)
             .map {
               case Right(Some(examResult)) =>
                 Ok(Json.toJson(ExamResultResponseDto.fromDomain(examResult)))
               case Right(None) =>
-                NotFound(s"Exam result with id $examId not found")
+                NotFound(s"Exam result with id $examResultId not found")
               case Left(error) =>
                 BadRequest(s"Failed to fetch exam result: $error")
             }
