@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
     docker.io \
     software-properties-common \
     wget \
-    tzdata
+    tzdata \
+    vim
 
 ENV TZ=Asia/Tokyo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -25,10 +26,19 @@ RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/ap
 
 RUN apt-get update && apt-get install -y sbt
 
-WORKDIR /app
+ARG USERNAME
 
-COPY . .
+ENV USERNAME=${USERNAME}
 
-RUN sbt compile stage
+RUN mkdir -p /etc/sudoers.d \
+    && useradd -m -s /bin/bash $USERNAME \
+    && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 
-CMD ["sbt", "run"]
+WORKDIR /workspaces/exam-manager
+
+RUN chown -R $USERNAME:$USERNAME /workspaces/exam-manager
+USER $USERNAME
+RUN sbt compile
+
+CMD ["sbt", "shell"]
