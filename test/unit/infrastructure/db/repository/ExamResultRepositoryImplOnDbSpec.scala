@@ -19,7 +19,7 @@ import domain.utils.dateTime.{CreatedAt, UpdatedAt}
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import infrastructure.db.DatabaseConfig
-import infrastructure.db.repositories.ExamResultRepositoryImpl
+import infrastructure.db.repositories.ExamResultRepositoryImplOnDb
 import infrastructure.db.table.ExamResultTable
 import dto.infrastructure.examResult.entity.ExamResultDto
 import utils.CustomPatience
@@ -30,7 +30,7 @@ import java.time.ZonedDateTime
 import java.sql.SQLTransientConnectionException
 import slick.jdbc.H2Profile.api._
 
-class ExamResultRepositoryImplSpec
+class ExamResultRepositoryImplOnDbSpec
     extends AnyWordSpec
     with Matchers
     with ScalaFutures
@@ -48,7 +48,7 @@ class ExamResultRepositoryImplSpec
 
   val dbConfig = app.injector.instanceOf[DatabaseConfig]
   val mockScheduler = mock[Scheduler]
-  val repository = new ExamResultRepositoryImpl(dbConfig, mockScheduler)
+  val repository = new ExamResultRepositoryImplOnDb(dbConfig, mockScheduler)
 
   val examResultTable = TableQuery[ExamResultTable]
 
@@ -67,7 +67,7 @@ class ExamResultRepositoryImplSpec
     super.beforeEach()
   }
 
-  "ExamResultRepositoryImpl#save" should {
+  "ExamResultRepositoryImplOnDb#save" should {
     "return a saved Exam when given valid ExamResult as input" in {
       val examResult = ExamResult(
         ExamResultId("exam-result-id"),
@@ -106,7 +106,7 @@ class ExamResultRepositoryImplSpec
     }
   }
 
-  "ExamResultRepositoryImpl#findById" should {
+  "ExamResultRepositoryImplOnDb#findById" should {
     "return a ExamResult when given corresponding ExamResultId as input" in {
       val examResultDto = ExamResultDto(
         "examResult-id",
@@ -139,7 +139,7 @@ class ExamResultRepositoryImplSpec
     }
   }
 
-  "ExamResultRepositoryImpl#findByExamId" should {
+  "ExamResultRepositoryImplOnDb#findByExamId" should {
     "return some ExamResult when given corresponding ExamId as input" in {
       val examResultDto = ExamResultDto(
         "exam-result-id",
@@ -172,7 +172,7 @@ class ExamResultRepositoryImplSpec
     }
   }
 
-  "ExamResultRepositoryImpl#update" should {
+  "ExamResultRepositoryImplOnDb#update" should {
     "return the updated ExamResult when given valid ExamResult as input" in {
       val examResult = ExamResult(
         ExamResultId("exam-result-id"),

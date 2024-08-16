@@ -4,8 +4,8 @@ import java.time.Clock
 import play.api.inject.{ApplicationLifecycle, Binding}
 import play.api.{Configuration, Environment}
 import infrastructure.db.repositories.{
-  ExamResultRepositoryImpl,
-  ExamRepositoryImpl
+  ExamResultRepositoryImplOnDb,
+  ExamRepositoryImplOnDb
 }
 import usecases.examResult.repository.ExamResultRepository
 import usecases.exam.repository.ExamRepository
@@ -56,10 +56,10 @@ class Module(environment: Environment, configuration: Configuration)
 
   override def configure(): Unit = {
     bind(classOf[ExamResultRepository])
-      .to(classOf[ExamResultRepositoryImpl])
+      .to(classOf[ExamResultRepositoryImplOnDb])
       .asEagerSingleton()
     bind(classOf[ExamRepository])
-      .to(classOf[ExamRepositoryImpl])
+      .to(classOf[ExamRepositoryImplOnDb])
       .asEagerSingleton()
     bind(classOf[UlidGenerator])
       .to(classOf[UlidGeneratorImpl])

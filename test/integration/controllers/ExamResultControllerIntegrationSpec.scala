@@ -37,8 +37,8 @@ import usecases.exam.logic.examUpdater.impl.ExamUpdaterImpl
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import infrastructure.libs.UlidGeneratorImpl
 import infrastructure.db.repositories.{
-  ExamResultRepositoryImpl,
-  ExamRepositoryImpl
+  ExamResultRepositoryImplOnDb,
+  ExamRepositoryImplOnDb
 }
 import infrastructure.db.DatabaseConfig
 import infrastructure.db.table.ExamResultTable
@@ -73,8 +73,8 @@ class ExamResultControllerIntegrationSpec
     .overrides(
       bind[SystemClock].toInstance(mockSystemClock),
       bind[UlidGenerator].toInstance(mockUlidGenerator),
-      bind[ExamResultRepository].to[ExamResultRepositoryImpl],
-      bind[ExamRepository].to[ExamRepositoryImpl],
+      bind[ExamResultRepository].to[ExamResultRepositoryImplOnDb],
+      bind[ExamRepository].to[ExamRepositoryImplOnDb],
       bind[Evaluator].to[QuartileEvaluatorImpl],
       bind[ExamResultUpdater].to[ExamResultUpdaterImpl],
       bind[ExamUpdater].to[ExamUpdaterImpl],
