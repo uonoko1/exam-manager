@@ -19,7 +19,7 @@ import domain.exam.entity.Exam
 import domain.exam.valueObject._
 import domain.utils.dateTime.{CreatedAt, UpdatedAt}
 import infrastructure.db.DatabaseConfig
-import infrastructure.db.repositories.ExamRepositoryImpl
+import infrastructure.db.repositories.ExamRepositoryImplOnDb
 import infrastructure.db.table.ExamTable
 import dto.infrastructure.exam.entity.ExamDto
 import utils.CustomPatience
@@ -31,7 +31,7 @@ import java.sql.SQLTransientConnectionException
 import slick.jdbc.H2Profile.api._
 import slick.jdbc.JdbcProfile
 
-class ExamRepositoryImplSpec
+class ExamRepositoryImplOnDbSpec
     extends PlaySpec
     with Matchers
     with ScalaFutures
@@ -48,7 +48,7 @@ class ExamRepositoryImplSpec
 
   val dbConfig = app.injector.instanceOf[DatabaseConfig]
   val mockScheduler = mock(classOf[Scheduler])
-  val repository = new ExamRepositoryImpl(dbConfig, mockScheduler)
+  val repository = new ExamRepositoryImplOnDb(dbConfig, mockScheduler)
 
   val examTable = TableQuery[ExamTable]
 
@@ -67,7 +67,7 @@ class ExamRepositoryImplSpec
     super.beforeEach()
   }
 
-  "ExamRepositoryImpl#save" should {
+  "ExamRepositoryImplOnDb#save" should {
     "return a saved Exam when given valid Exam as input" in {
       val exam = Exam(
         ExamId("exam-id"),
@@ -104,7 +104,7 @@ class ExamRepositoryImplSpec
     }
   }
 
-  "ExamRepositoryImpl#findById" should {
+  "ExamRepositoryImplOnDb#findById" should {
     "return an Exam when given a valid ExamId" in {
       val exam = Exam(
         ExamId("exam-id"),
@@ -157,7 +157,7 @@ class ExamRepositoryImplSpec
     }
   }
 
-  "ExamRepositoryImpl#findByDueDate" should {
+  "ExamRepositoryImplOnDb#findByDueDate" should {
     "return exams within the date range as input" in {
       val startDate = ZonedDateTime.now().minusDays(10)
       val endDate = ZonedDateTime.now()
@@ -225,7 +225,7 @@ class ExamRepositoryImplSpec
     }
   }
 
-  "ExamRepositoryImpl#update" should {
+  "ExamRepositoryImplOnDb#update" should {
     "return a updated Exam when given valid Exam as input" in {
       val exam = Exam(
         ExamId("exam-id"),

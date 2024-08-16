@@ -33,8 +33,8 @@ import usecases.examResult.logic.examResultUpdater.impl.ExamResultUpdaterImpl
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import usecases.exam.logic.examUpdater.impl.ExamUpdaterImpl
 import infrastructure.db.table.{ExamTable, ExamResultTable}
-import infrastructure.db.repositories.ExamRepositoryImpl
-import infrastructure.db.repositories.ExamResultRepositoryImpl
+import infrastructure.db.repositories.ExamRepositoryImplOnDb
+import infrastructure.db.repositories.ExamResultRepositoryImplOnDb
 import infrastructure.db.DatabaseConfig
 import utils.CustomPatience
 import utils.{SystemClock, UlidGenerator}
@@ -94,9 +94,9 @@ class JobSchedulerIntegrationSpec
 
   "JobScheduler" should {
     "execute the scheduled job immediately in test mode" in {
-      val examRepository = app.injector.instanceOf[ExamRepositoryImpl]
+      val examRepository = app.injector.instanceOf[ExamRepositoryImplOnDb]
       val examResultRepository =
-        app.injector.instanceOf[ExamResultRepositoryImpl]
+        app.injector.instanceOf[ExamResultRepositoryImplOnDb]
       val actorSystem = app.injector.instanceOf[ActorSystem]
 
       val now = ZonedDateTime.parse("2024-07-22T00:00:00+09:00[Asia/Tokyo]")

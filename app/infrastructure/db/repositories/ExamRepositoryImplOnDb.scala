@@ -1,38 +1,35 @@
 package infrastructure.db.repositories
 
 import javax.inject.{Inject, Singleton}
+import domain.exam.entity.Exam
+import dto.infrastructure.exam.entity.ExamDto
 import infrastructure.db.DatabaseConfig
-import infrastructure.db.table.ExamResultTable
-import scala.concurrent.{ExecutionContext, Future}
-import usecases.examResult.repository.ExamResultRepository
-import domain.examResult.entity.ExamResult
-import domain.exam.valueObject._
-import dto.infrastructure.examResult.entity.ExamResultDto
+import infrastructure.db.table.ExamTable
+import usecases.exam.repository.ExamRepository
 import utils.Retry
+import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.duration._
 import org.apache.pekko.actor.Scheduler
 import java.sql.SQLTransientConnectionException
 import java.time.ZonedDateTime
-import domain.examResult.valueObject.ExamResultId
+import domain.exam.valueObject.ExamId
 
 @Singleton
-class ExamResultRepositoryImpl @Inject() (
+class ExamRepositoryImplOnDb @Inject() (
     dbConfig: DatabaseConfig,
     scheduler: Scheduler
 )(implicit
     ec: ExecutionContext
-) extends ExamResultRepository {
+) extends ExamRepository {
   import dbConfig._
   import profile.api._
 
-  override def save(
-      examResult: ExamResult
-  ): Future[Either[String, ExamResult]] = {
-    val dto = ExamResultDto.fromDomain(examResult)
-    val query = ExamResultTable.examResults += dto
+  override def save(exam: Exam): Future[Either[String, Exam]] = {
+    val dto = ExamDto.fromDomain(exam)
+    val query = ExamTable.exams += dto
     Retry
       .withRetry(run(query), 3, 1.second)(ec, scheduler)
-      .map(_ => Right(examResult))
+      .map(_ => Right(exam))
       .recover {
         case ex: SQLTransientConnectionException =>
           Left("Database connection error")
@@ -41,19 +38,19 @@ class ExamResultRepositoryImpl @Inject() (
   }
 
   override def findById(
-      examResultId: ExamResultId
-  ): Future[Either[String, Option[ExamResult]]] = {
-    val query = ExamResultTable.examResults
-      .filter(_.examResultId === examResultId.value)
+      examId: ExamId
+  ): Future[Either[String, Option[Exam]]] = {
+    val query = ExamTable.exams
+      .filter(_.examId === examId.value)
       .result
       .headOption
     Retry
       .withRetry(run(query), 3, 1.second)(ec, scheduler)
       .map {
         case Some(dto) =>
-          ExamResultDto.toDomain(dto) match {
-            case Right(examResult) => Right(Some(examResult))
-            case Left(error)       => Left(error)
+          ExamDto.toDomain(dto) match {
+            case Right(exam) => Right(Some(exam))
+            case Left(error) => Left(error)
           }
         case None => Right(None)
       }
@@ -64,21 +61,26 @@ class ExamResultRepositoryImpl @Inject() (
       }
   }
 
-  override def findByExamId(
-      examId: ExamId
-  ): Future[Either[String, Seq[ExamResult]]] = {
-    val query = ExamResultTable.examResults
-      .filter(_.examId === examId.value)
+  override def findByDueDate(
+      startDate: ZonedDateTime,
+      endDate: ZonedDateTime
+  ): Future[Either[String, Seq[Exam]]] = {
+    val query = ExamTable.exams
+      .filter(exam => exam.dueDate >= startDate && exam.dueDate <= endDate)
       .result
+
     Retry
       .withRetry(run(query), 3, 1.second)(ec, scheduler)
       .map { dtos =>
-        val examResults = dtos.map(ExamResultDto.toDomain)
-        val errors = examResults.collect { case Left(error) => error }
+        val exams = dtos.map(ExamDto.toDomain)
+        val (errors, validExams) = exams.partitionMap(identity)
+
         if (errors.nonEmpty) {
           Left(errors.mkString(", "))
+        } else if (validExams.isEmpty) {
+          Left("No exams found for the given period")
         } else {
-          Right(examResults.collect { case Right(examResult) => examResult })
+          Right(validExams)
         }
       }
       .recover {
@@ -88,16 +90,13 @@ class ExamResultRepositoryImpl @Inject() (
       }
   }
 
-  override def update(
-      examResult: ExamResult
-  ): Future[Either[String, ExamResult]] = {
-    val dto = ExamResultDto.fromDomain(examResult)
-    val query = ExamResultTable.examResults
-      .filter(_.examResultId === dto.examResultId)
-      .update(dto)
+  override def update(exam: Exam): Future[Either[String, Exam]] = {
+    val dto = ExamDto.fromDomain(exam)
+    val query =
+      ExamTable.exams.filter(_.examId === dto.examIdDto.value).update(dto)
     Retry
       .withRetry(run(query), 3, 1.second)(ec, scheduler)
-      .map(_ => Right(examResult))
+      .map(_ => Right(exam))
       .recover {
         case ex: SQLTransientConnectionException =>
           Left("Database connection error")
