@@ -12,12 +12,12 @@ class JobScheduler @Inject() (
     actorSystem: ActorSystem,
     examResultUsecase: ExamResultUsecase,
     systemClock: SystemClock,
-    isTestMode: Boolean = false // テストモードフラグを追加
+    isTestMode: Boolean = false
 )(implicit ec: ExecutionContext) {
 
   def calculateInitialDelay(): FiniteDuration = {
     if (isTestMode) {
-      Duration.Zero // テストモードでは遅延なし
+      Duration.Zero
     } else {
       val now = systemClock.now()
       val nextSunday = now
