@@ -62,37 +62,29 @@ class ExamResultUsecase @Inject() (
   def evaluateResults(): Future[Either[String, Unit]] = {
     (for {
       (startDate, endDate) <- EitherT.pure[Future, String](
-        evaluationPeriodProvider.getEvaluationPeriod((systemClock.now()))
+        evaluationPeriodProvider.getEvaluationPeriod(systemClock.now())
       )
       exams <- EitherT(examRepository.findByDueDate(startDate, endDate))
-      examEvaluations <- EitherT
-        .liftF(Future.sequence {
-          exams.map { exam =>
-            (for {
-              results <- EitherT(examResultRepository.findByExamId(exam.examId))
-              evaluations = evaluator.evaluate(exam, results)
-            } yield (exam, results, evaluations)).value
-          }
-        })
-        .map(_.collect { case Right(value) => value })
-      _ <- EitherT
-        .liftF(Future.sequence {
-          examEvaluations.map { case (exam, results, evaluations) =>
-            (for {
-              updatedResults <- EitherT(
-                examResultUpdater.updateEvaluations(
-                  results,
-                  evaluations,
-                  (systemClock.now())
-                )
-              )
-              _ <- EitherT.liftF(
-                examUpdater.updateEvaluations(exam, updatedResults, results)
-              )
-            } yield ()).value
-          }
-        })
-        .map(_.collect { case Right(value) => value })
+      examEvaluations <- exams.traverse { exam =>
+        for {
+          results <- EitherT(examResultRepository.findByExamId(exam.examId))
+          evaluations = evaluator.evaluate(exam, results)
+        } yield (exam, results, evaluations)
+      }
+      _ <- examEvaluations.traverse_ { case (exam, results, evaluations) =>
+        for {
+          updatedResults <- EitherT(
+            examResultUpdater.updateEvaluations(
+              results,
+              evaluations,
+              systemClock.now()
+            )
+          )
+          _ <- EitherT(
+            examUpdater.updateEvaluations(exam, updatedResults, results)
+          )
+        } yield ()
+      }
     } yield ()).value
   }
 }
