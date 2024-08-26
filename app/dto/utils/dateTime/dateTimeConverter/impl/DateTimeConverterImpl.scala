@@ -10,10 +10,14 @@ class DateTimeConverterImpl extends DateTimeConverter {
   override def stringToZonedDateTime(
       dateTimeString: String
   ): Either[String, ZonedDateTime] = {
-    if (Try(Instant.parse(dateTimeString)).isSuccess) {
-      Left("Invalid input. Error: Instant format is not allowed.")
-    } else if (Try(OffsetDateTime.parse(dateTimeString)).isSuccess) {
-      Left("Invalid input. Error: OffsetDateTime format is not allowed.")
+    if (
+      Try(OffsetDateTime.parse(dateTimeString)).isSuccess || Try(
+        Instant.parse(dateTimeString)
+      ).isSuccess
+    ) {
+      Left(
+        "Invalid input. Error: OffsetDateTime or Instant format is not allowed."
+      )
     } else {
       Try(ZonedDateTime.parse(dateTimeString)).toEither.left.map(e =>
         s"Invalid input. Error: ${e.getMessage}"
