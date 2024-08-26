@@ -89,7 +89,7 @@ class DateTimeConverterImplSpec
       result mustBe a[Left[String, ZonedDateTime]]
       result match {
         case Left(error) =>
-          error mustBe ("Invalid input. Error: OffsetDateTime format is not allowed.")
+          error mustBe ("Invalid input. Error: OffsetDateTime or Instant format is not allowed.")
         case _ => fail("Expected Left but got Right")
       }
     }
@@ -102,7 +102,7 @@ class DateTimeConverterImplSpec
       result match {
         case Left(error) =>
           error mustBe (
-            "Invalid input. Error: Instant format is not allowed."
+            "Invalid input. Error: OffsetDateTime or Instant format is not allowed."
           )
         case _ => fail("Expected Left but got Right")
       }
