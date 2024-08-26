@@ -145,9 +145,10 @@ class ExamResultUsecaseSpec
   }
 
   "ExamResultUsecase#evaluateResults" should {
+    val startDate = ZonedDateTime.now().minusDays(7)
+    val endDate = ZonedDateTime.now()
+
     "evaluate examResults successfully" in {
-      val startDate = ZonedDateTime.now().minusDays(7)
-      val endDate = ZonedDateTime.now()
       val fixedTime =
         ZonedDateTime.parse("2024-07-21T12:00:00+09:00[Asia/Tokyo]")
       val exams = Seq(
@@ -205,10 +206,7 @@ class ExamResultUsecaseSpec
       }
     }
 
-    "handle evaluation failure" in {
-      val startDate = ZonedDateTime.now().minusDays(7)
-      val endDate = ZonedDateTime.now()
-
+    "handle examRepository#findbyDueDate failure" in {
       when(mockEvaluationPeriodProvider.getEvaluationPeriod(any[ZonedDateTime]))
         .thenReturn((startDate, endDate))
       when(mockExamRepository.findByDueDate(startDate, endDate))
@@ -218,6 +216,142 @@ class ExamResultUsecaseSpec
 
       whenReady(result) { res =>
         res mustBe Left("Database error")
+      }
+    }
+
+    "handle examResultRepository#findByExamId failure" in {
+      val fixedTime =
+        ZonedDateTime.parse("2024-07-21T12:00:00+09:00[Asia/Tokyo]")
+      val exams = Seq(
+        Exam(
+          ExamId("exam-id"),
+          Subject.Math,
+          DueDate(ZonedDateTime.now().minusDays(1)),
+          EvaluationStatus.NotEvaluated,
+          CreatedAt(ZonedDateTime.now().minusDays(10)),
+          UpdatedAt(ZonedDateTime.now().minusDays(1))
+        )
+      )
+
+      when(mockEvaluationPeriodProvider.getEvaluationPeriod(any[ZonedDateTime]))
+        .thenReturn((startDate, endDate))
+      when(mockExamRepository.findByDueDate(startDate, endDate))
+        .thenReturn(Future.successful(Right(exams)))
+      when(mockExamResultRepository.findByExamId(any[ExamId]))
+        .thenReturn(Future.successful(Left("Failed to retrieve exam results")))
+
+      val result = usecase.evaluateResults()
+
+      whenReady(result) { res =>
+        res mustBe Left("Failed to retrieve exam results")
+      }
+    }
+
+    "handle examResultUpdater#updateEvaluations failure" in {
+      val fixedTime =
+        ZonedDateTime.parse("2024-07-21T12:00:00+09:00[Asia/Tokyo]")
+      val exams = Seq(
+        Exam(
+          ExamId("exam-id"),
+          Subject.Math,
+          DueDate(ZonedDateTime.now().minusDays(1)),
+          EvaluationStatus.NotEvaluated,
+          CreatedAt(ZonedDateTime.now().minusDays(10)),
+          UpdatedAt(ZonedDateTime.now().minusDays(1))
+        )
+      )
+      val examResults = Seq(
+        ExamResult(
+          ExamResultId("01ARZ3NDEKTSV4RRFFQ69G5FAV"),
+          ExamId("exam-id"),
+          Score(85),
+          StudentId("student-id"),
+          Evaluation.NotEvaluated,
+          CreatedAt(fixedTime),
+          UpdatedAt(fixedTime)
+        )
+      )
+      val evaluations = Map(examResults.head -> Evaluation.Excellent)
+
+      when(mockEvaluationPeriodProvider.getEvaluationPeriod(any[ZonedDateTime]))
+        .thenReturn((startDate, endDate))
+      when(mockExamRepository.findByDueDate(startDate, endDate))
+        .thenReturn(Future.successful(Right(exams)))
+      when(mockExamResultRepository.findByExamId(any[ExamId]))
+        .thenReturn(Future.successful(Right(examResults)))
+      when(mockEvaluator.evaluate(any[Exam], any[Seq[ExamResult]]))
+        .thenReturn(evaluations)
+      when(
+        mockExamResultUpdater.updateEvaluations(
+          any[Seq[ExamResult]],
+          any[Map[ExamResult, Evaluation]],
+          any[ZonedDateTime]
+        )
+      )
+        .thenReturn(Future.successful(Left("Failed to update evaluations")))
+
+      val result = usecase.evaluateResults()
+
+      whenReady(result) { res =>
+        res mustBe Left("Failed to update evaluations")
+      }
+    }
+
+    "handle examUpdater#updateEvaluations failure" in {
+      val fixedTime =
+        ZonedDateTime.parse("2024-07-21T12:00:00+09:00[Asia/Tokyo]")
+      val exams = Seq(
+        Exam(
+          ExamId("exam-id"),
+          Subject.Math,
+          DueDate(ZonedDateTime.now().minusDays(1)),
+          EvaluationStatus.NotEvaluated,
+          CreatedAt(ZonedDateTime.now().minusDays(10)),
+          UpdatedAt(ZonedDateTime.now().minusDays(1))
+        )
+      )
+      val examResults = Seq(
+        ExamResult(
+          ExamResultId("01ARZ3NDEKTSV4RRFFQ69G5FAV"),
+          ExamId("exam-id"),
+          Score(85),
+          StudentId("student-id"),
+          Evaluation.NotEvaluated,
+          CreatedAt(fixedTime),
+          UpdatedAt(fixedTime)
+        )
+      )
+      val evaluations = Map(examResults.head -> Evaluation.Excellent)
+
+      when(mockEvaluationPeriodProvider.getEvaluationPeriod(any[ZonedDateTime]))
+        .thenReturn((startDate, endDate))
+      when(mockExamRepository.findByDueDate(startDate, endDate))
+        .thenReturn(Future.successful(Right(exams)))
+      when(mockExamResultRepository.findByExamId(any[ExamId]))
+        .thenReturn(Future.successful(Right(examResults)))
+      when(mockEvaluator.evaluate(any[Exam], any[Seq[ExamResult]]))
+        .thenReturn(evaluations)
+      when(
+        mockExamResultUpdater.updateEvaluations(
+          any[Seq[ExamResult]],
+          any[Map[ExamResult, Evaluation]],
+          any[ZonedDateTime]
+        )
+      )
+        .thenReturn(Future.successful(Right(examResults)))
+      when(
+        mockExamUpdater.updateEvaluations(
+          any[Exam],
+          any[Seq[ExamResult]],
+          any[Seq[ExamResult]]
+        )
+      )
+        .thenReturn(Future.successful(Left("Failed to update exam")))
+
+      val result = usecase.evaluateResults()
+
+      whenReady(result) { res =>
+        res mustBe Left("Failed to update exam")
       }
     }
   }
