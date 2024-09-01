@@ -1,6 +1,6 @@
 package infrastructure.db.repository
 
-import play.api.{Application, Configuration}
+import play.api.{ Application, Configuration }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.Environment
@@ -15,7 +15,7 @@ import org.scalatest.BeforeAndAfterEach
 
 import domain.examResult.entity.ExamResult
 import domain.exam.valueObject._
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import infrastructure.db.DatabaseConfig
@@ -25,7 +25,7 @@ import dto.infrastructure.examResult.entity.ExamResultDto
 import utils.CustomPatience
 import utils.TestDatabaseConfig
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import java.time.ZonedDateTime
 import java.sql.SQLTransientConnectionException
 import slick.jdbc.H2Profile.api._

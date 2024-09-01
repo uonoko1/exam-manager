@@ -1,6 +1,6 @@
 package controllers
 
-import play.api.test.{FakeRequest, Injecting}
+import play.api.test.{ FakeRequest, Injecting }
 import play.api.test.Helpers._
 import play.api.test.CSRFTokenHelper._
 import play.api.inject.bind
@@ -8,12 +8,12 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 import play.api.db.slick.DatabaseConfigProvider
-import play.api.{Configuration, Application}
+import play.api.{ Application, Configuration }
 
 import org.scalatestplus.play.PlaySpec
 import org.scalatest.matchers.must.Matchers._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.time.{ Millis, Seconds, Span }
 import org.scalatest.concurrent.ScalaFutures._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.BeforeAndAfterEach
@@ -27,7 +27,7 @@ import domain.evaluator.impl.QuartileEvaluatorImpl
 import domain.evaluator.`trait`.Evaluator
 import domain.evaluationPeriodProvider.impl.WeeklyEvaluationPeriodProviderImpl
 import domain.evaluationPeriodProvider.`trait`.EvaluationPeriodProvider
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import usecases.examResult.ExamResultUsecase
 import usecases.examResult.repository.ExamResultRepository
 import usecases.exam.repository.ExamRepository
@@ -36,14 +36,10 @@ import usecases.examResult.logic.examResultUpdater.`trait`.ExamResultUpdater
 import usecases.exam.logic.examUpdater.impl.ExamUpdaterImpl
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import infrastructure.libs.UlidGeneratorImpl
-import infrastructure.db.repositories.{
-  ExamResultRepositoryImplOnDb,
-  ExamRepositoryImplOnDb
-}
+import infrastructure.db.repositories.{ ExamRepositoryImplOnDb, ExamResultRepositoryImplOnDb }
 import infrastructure.db.DatabaseConfig
 import infrastructure.db.table.ExamResultTable
 import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
-import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
 import dto.response.examResult.entity.ExamResultResponseDto
 import utils.SystemClock
 import utils.UlidGenerator
@@ -51,7 +47,7 @@ import utils.CustomPatience
 import utils.TestDatabaseConfig
 
 import java.time.ZonedDateTime
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ ExecutionContext, Future }
 import slick.jdbc.H2Profile.api._
 
 class ExamResultControllerIntegrationSpec

@@ -9,7 +9,7 @@ import javax.inject._
 class UpdatedAtRequestConverterImpl @Inject() (
     dateTimeConverter: DateTimeConverter
 ) extends UpdatedAtRequestConverter {
-  override def validateAndCreate(value: String): Either[String, UpdatedAt] = {
+  override def validateAndCreate(value: String): Either[String, UpdatedAt] =
     if (value.isEmpty) {
       Left("UpdatedAt cannot be empty")
     } else {
@@ -18,5 +18,4 @@ class UpdatedAtRequestConverterImpl @Inject() (
         case Left(error)          => Left(s"Invalid UpdatedAt format: $error")
       }
     }
-  }
 }

@@ -8,6 +8,6 @@ object ExamResultIdDto {
   def fromDomain(examResultId: ExamResultId): ExamResultIdDto = ExamResultIdDto(
     examResultId.value
   )
-  def toDomain(dto: ExamResultIdDto): ExamResultId =
+  def toDomain(dto: ExamResultIdDto): Either[String, ExamResultId] =
     ExamResultId.create(dto.value)
 }

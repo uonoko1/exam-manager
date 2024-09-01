@@ -16,7 +16,7 @@ class JsonFieldParserImplSpec
 
   def createParseList(
       requestBody: Map[String, String]
-  ): List[Either[String, Any]] = {
+  ): List[Either[String, Any]] =
     List(
       requestBody.get("field1").map(Right(_)),
       requestBody.get("field2").map(Right(_)),
@@ -24,7 +24,6 @@ class JsonFieldParserImplSpec
       requestBody.get("field4").map(Left(_)),
       requestBody.get("field5").map(Left(_))
     ).flatten
-  }
 
   "JsonFieldParserImpl" should {
     "return a tuple of extracted fields when given JSON as input contains parseList's fields" in {

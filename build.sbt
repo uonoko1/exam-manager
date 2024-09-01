@@ -7,6 +7,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "3.4.1"
 
+ThisBuild / scalafmtOnCompile := true
+
 libraryDependencies ++= Seq(
   guice,
   "org.playframework" %% "play-slick" % "6.1.0",

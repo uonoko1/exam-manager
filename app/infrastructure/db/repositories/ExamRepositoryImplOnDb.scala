@@ -1,13 +1,13 @@
 package infrastructure.db.repositories
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 import domain.exam.entity.Exam
 import dto.infrastructure.exam.entity.ExamDto
 import infrastructure.db.DatabaseConfig
 import infrastructure.db.table.ExamTable
 import usecases.exam.repository.ExamRepository
 import utils.Retry
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.duration._
 import org.apache.pekko.actor.Scheduler
 import java.sql.SQLTransientConnectionException

@@ -1,7 +1,7 @@
 package usecases.exam.logic.examUpdater.impl
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import domain.exam.entity.Exam
 import domain.examResult.entity.ExamResult
 import domain.exam.valueObject._

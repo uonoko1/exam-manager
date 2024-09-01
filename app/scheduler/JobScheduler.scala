@@ -1,6 +1,6 @@
 package scheduler
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import org.apache.pekko.actor.ActorSystem
@@ -15,7 +15,7 @@ class JobScheduler @Inject() (
     isTestMode: Boolean = false
 )(implicit ec: ExecutionContext) {
 
-  def calculateInitialDelay(): FiniteDuration = {
+  def calculateInitialDelay(): FiniteDuration =
     if (isTestMode) {
       Duration.Zero
     } else {
@@ -33,17 +33,15 @@ class JobScheduler @Inject() (
       val duration = java.time.Duration.between(now, nextSunday)
       FiniteDuration(duration.toMillis, MILLISECONDS)
     }
-  }
 
   val period: FiniteDuration =
     if (isTestMode) 1.second else FiniteDuration(7, DAYS)
 
-  private val scheduleRunnable: () => Unit = () => {
+  private val scheduleRunnable: () => Unit = () =>
     examResultUsecase.evaluateResults().map {
       case Right(_)    => println("Scheduled job completed successfully.")
       case Left(error) => println(s"Scheduled job failed with error: $error")
     }
-  }
 
   if (isTestMode) {
     actorSystem.scheduler.scheduleOnce(calculateInitialDelay()) {

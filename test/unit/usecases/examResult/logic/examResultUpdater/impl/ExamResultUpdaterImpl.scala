@@ -29,9 +29,8 @@ class ExamResultUpdaterImplSpec
   val mockExamResultRepository = mock(classOf[ExamResultRepository])
   val updater = new ExamResultUpdaterImpl(mockExamResultRepository)
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     reset(mockExamResultRepository)
-  }
 
   "ExamResultUpdaterImpl#updateEvaluations" should {
     "update evaluations successfully when given valid input" in {

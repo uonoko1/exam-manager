@@ -2,9 +2,9 @@ package dto.infrastructure.exam.entity
 
 import domain.exam.entity.Exam
 import domain.exam.valueObject._
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import dto.infrastructure.exam.valueObject._
-import dto.infrastructure.utils.dateTime.{CreatedAtDto, UpdatedAtDto}
+import dto.infrastructure.utils.dateTime.{ CreatedAtDto, UpdatedAtDto }
 import java.time.ZonedDateTime
 
 case class ExamDto(
@@ -26,9 +26,9 @@ object ExamDto {
     updatedAtDto = exam.updatedAt.value
   )
 
-  def toDomain(dto: ExamDto): Either[String, Exam] = {
+  def toDomain(dto: ExamDto): Either[String, Exam] =
     for {
-      examId <- Right(ExamId.create(dto.examIdDto))
+      examId <- ExamId.create(dto.examIdDto)
       subject <- Subject.create(dto.subjectDto)
       dueDate <- Right(DueDate.create(dto.dueDateDto))
       evaluationStatus <- EvaluationStatus.create(dto.evaluationStatusDto)
@@ -42,5 +42,4 @@ object ExamDto {
       createdAt = createdAt,
       updatedAt = updatedAt
     )
-  }
 }

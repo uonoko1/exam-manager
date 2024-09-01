@@ -6,7 +6,7 @@ import domain.examResult.entity.ExamResult
 import domain.exam.entity.Exam
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import utils.CustomPatience
 import java.time.ZonedDateTime
 

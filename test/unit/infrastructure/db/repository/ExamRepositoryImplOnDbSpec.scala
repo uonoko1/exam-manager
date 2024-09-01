@@ -1,6 +1,6 @@
 package infrastructure.db.repository
 
-import play.api.{Application, Configuration}
+import play.api.{ Application, Configuration }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.Environment
@@ -10,14 +10,14 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.time.{ Millis, Seconds, Span }
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 import org.apache.pekko.actor.Scheduler
 
 import domain.exam.entity.Exam
 import domain.exam.valueObject._
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import infrastructure.db.DatabaseConfig
 import infrastructure.db.repositories.ExamRepositoryImplOnDb
 import infrastructure.db.table.ExamTable
@@ -25,7 +25,7 @@ import dto.infrastructure.exam.entity.ExamDto
 import utils.CustomPatience
 import utils.TestDatabaseConfig
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import java.time.ZonedDateTime
 import java.sql.SQLTransientConnectionException
 import slick.jdbc.H2Profile.api._

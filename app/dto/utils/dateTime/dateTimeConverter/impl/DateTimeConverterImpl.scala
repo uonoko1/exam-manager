@@ -2,14 +2,14 @@ package dto.utils.dateTime.dateTimeConverter.impl
 
 import dto.utils.dateTime.dateTimeConverter.`trait`.DateTimeConverter
 import scala.util.Try
-import java.time.{ZonedDateTime, OffsetDateTime, Instant}
+import java.time.{ Instant, OffsetDateTime, ZonedDateTime }
 import javax.inject._
 
 @Singleton
 class DateTimeConverterImpl extends DateTimeConverter {
   override def stringToZonedDateTime(
       dateTimeString: String
-  ): Either[String, ZonedDateTime] = {
+  ): Either[String, ZonedDateTime] =
     if (
       Try(OffsetDateTime.parse(dateTimeString)).isSuccess || Try(
         Instant.parse(dateTimeString)
@@ -23,5 +23,4 @@ class DateTimeConverterImpl extends DateTimeConverter {
         s"Invalid input. Error: ${e.getMessage}"
       )
     }
-  }
 }

@@ -16,18 +16,15 @@
             ]
         }
     },
-    "postCreateCommand": "eval \"$(ssh-agent -s)\" && ssh-add /home/${localEnv:USER}/.ssh/github/id_rsa && git config --global core.editor vim && sbt compile",
-    "remoteUser": "${localEnv:USER}",
+    "postCreateCommand": "mkdir -p ~/.ssh/github && echo \"$GITHUB_SSH_PRIVATE_KEY\" > ~/.ssh/github/id_rsa && chmod 600 ~/.ssh/github/id_rsa && echo \"$GITHUB_SSH_CONFIG\" > ~/.ssh/config && chmod 600 ~/.ssh/config && echo \"$GITCONFIG\" > ~/.gitconfig && git config --global core.editor vim && sbt compile",
+    "remoteUser": "${env:USER}",
+    "remoteEnv": {
+        "GITHUB_SSH_PRIVATE_KEY": "${env:GITHUB_SSH_PRIVATE_KEY}",
+        "GITHUB_SSH_CONFIG": "${env:GITHUB_SSH_CONFIG}",
+        "GITCONFIG": "${env:GITCONFIG}"
+    },
     "features": {
         "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-    },
-    "mounts": [
-        "source=/home/${localEnv:USER}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly",
-        "source=/home/${localEnv:USER}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind,readonly",
-        "source=${SSH_AUTH_SOCK},target=/ssh-agent,type=bind"
-    ],
-    "remoteEnv": {
-        "SSH_AUTH_SOCK": "/ssh-agent"
     }
 }

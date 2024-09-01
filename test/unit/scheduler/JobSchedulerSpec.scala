@@ -28,9 +28,8 @@ class JobSchedulerSpec
 
   lazy val system: ActorSystem = ActorSystem("JobSchedulerSpec")
 
-  override def afterAll(): Unit = {
+  override def afterAll(): Unit =
     TestKit.shutdownActorSystem(system)
-  }
 
   "JobScheduler" should {
     "calculate the initial delay correctly" in {

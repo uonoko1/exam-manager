@@ -1,11 +1,11 @@
 package domain.examResult.valueObject
 
 enum Evaluation(val value: String) {
-    case Excellent extends Evaluation("Excellent")
-    case GoodJob extends Evaluation("Good Job")
-    case Passed extends Evaluation("Passed")
-    case Failed extends Evaluation("Failed")
-    case NotEvaluated extends Evaluation("Not Evaluated")
+  case Excellent extends Evaluation("Excellent")
+  case GoodJob extends Evaluation("Good Job")
+  case Passed extends Evaluation("Passed")
+  case Failed extends Evaluation("Failed")
+  case NotEvaluated extends Evaluation("Not Evaluated")
 }
 
 object Evaluation {

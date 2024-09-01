@@ -12,18 +12,21 @@ import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import domain.evaluator.`trait`.Evaluator
 import domain.evaluationPeriodProvider.`trait`.EvaluationPeriodProvider
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import domain.exam.entity.Exam
 import usecases.examResult.repository.ExamResultRepository
 import usecases.examResult.logic.examResultUpdater.`trait`.ExamResultUpdater
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import usecases.exam.repository.ExamRepository
-import utils.{UlidGenerator, SystemClock}
+import utils.{ SystemClock, UlidGenerator }
 import utils.CustomPatience
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import java.time.ZonedDateTime
+import dto.infrastructure.examResult.valueObject.ExamResultIdDto
+import dto.request.exam.valueObject._
+import dto.request.examResult.valueObject._
 
 class ExamResultUsecaseSpec
     extends AnyWordSpec
@@ -50,17 +53,26 @@ class ExamResultUsecaseSpec
     mockSystemClock
   )
 
+  val ulidString = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+
   "ExamResultUsecase#saveExamResult" should {
+    val examId = ExamId(ulidString)
+    val subject = Subject.Math
+    val score = Score(85)
+    val studentId = StudentId("student-id")
+    val examResultId = ExamResultId(ulidString)
+
+    val examIdRequestDto = ExamIdRequestDto("exam-id")
+    val subjectRequestDto = SubjectRequestDto.Math
+    val scoreRequestDto = ScoreRequestDto(85)
+    val studentIdRequestDto = StudentIdRequestDto("student-id")
+    val examResultIdRequestDto = ExamResultIdDto(ulidString)
+
     "return the saved ExamResult when given valid input" in {
-      val examId = ExamId("exam-id")
-      val subject = Subject.Math
-      val score = Score(85)
-      val studentId = StudentId("student-id")
-      val examResultId = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
       val fixedTime =
         ZonedDateTime.parse("2024-07-21T12:00:00+09:00[Asia/Tokyo]")
       val examResult = ExamResult(
-        ExamResultId(examResultId),
+        examResultId,
         examId,
         score,
         studentId,
@@ -69,12 +81,12 @@ class ExamResultUsecaseSpec
         UpdatedAt(fixedTime)
       )
 
-      when(mockUlidGenerator.generate()).thenReturn(examResultId)
+      when(mockUlidGenerator.generate()).thenReturn(ulidString)
       when(mockSystemClock.now()).thenReturn(fixedTime)
       when(mockExamResultRepository.save(any[ExamResult]))
         .thenReturn(Future.successful(Right(examResult)))
 
-      val result = usecase.saveExamResult(examId, subject, score, studentId)
+      val result = usecase.saveExamResult(examIdRequestDto, subjectRequestDto, scoreRequestDto, studentIdRequestDto)
 
       whenReady(result) { res =>
         res mustBe Right(examResult)
@@ -83,20 +95,15 @@ class ExamResultUsecaseSpec
     }
 
     "handle repository save failure" in {
-      val examId = ExamId("exam-id")
-      val subject = Subject.Math
-      val score = Score(85)
-      val studentId = StudentId("student-id")
-      val examResultId = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
       val fixedTime =
         ZonedDateTime.parse("2024-07-21T12:00:00+09:00[Asia/Tokyo]")
 
-      when(mockUlidGenerator.generate()).thenReturn(examResultId)
+      when(mockUlidGenerator.generate()).thenReturn(ulidString)
       when(mockSystemClock.now()).thenReturn(fixedTime)
       when(mockExamResultRepository.save(any[ExamResult]))
         .thenReturn(Future.successful(Left("Database error")))
 
-      val result = usecase.saveExamResult(examId, subject, score, studentId)
+      val result = usecase.saveExamResult(examIdRequestDto, subjectRequestDto, scoreRequestDto, studentIdRequestDto)
 
       whenReady(result) { res =>
         res mustBe Left("Database error")
@@ -105,11 +112,13 @@ class ExamResultUsecaseSpec
   }
 
   "ExamResultUsecase#findById" should {
+    val examResultId = ExamResultId("examResult-id")
+    val examResultIdRequestDto = ExamResultIdRequestDto("examResult-id")
+
     "return the ExamResult when given existing ExamId" in {
-      val examResultId = ExamResultId("examResult-id")
       val examResult = Some(
         ExamResult(
-          ExamResultId("01ARZ3NDEKTSV4RRFFQ69G5FAV"),
+          ExamResultId(ulidString),
           ExamId("exam-id"),
           Score(85),
           StudentId("student-id"),
@@ -122,7 +131,7 @@ class ExamResultUsecaseSpec
       when(mockExamResultRepository.findById(examResultId))
         .thenReturn(Future.successful(Right(examResult)))
 
-      val result = usecase.findById(examResultId)
+      val result = usecase.findById(examResultIdRequestDto)
 
       whenReady(result) { res =>
         res mustBe Right(examResult)
@@ -131,12 +140,10 @@ class ExamResultUsecaseSpec
     }
 
     "handle repository findById failure" in {
-      val examResultId = ExamResultId("exam-id")
-
       when(mockExamResultRepository.findById(examResultId))
         .thenReturn(Future.successful(Left("Database error")))
 
-      val result = usecase.findById(examResultId)
+      val result = usecase.findById(examResultIdRequestDto)
 
       whenReady(result) { res =>
         res mustBe Left("Database error")
@@ -163,7 +170,7 @@ class ExamResultUsecaseSpec
       )
       val examResults = Seq(
         ExamResult(
-          ExamResultId("01ARZ3NDEKTSV4RRFFQ69G5FAV"),
+          ExamResultId(ulidString),
           ExamId("exam-id"),
           Score(85),
           StudentId("student-id"),
@@ -262,7 +269,7 @@ class ExamResultUsecaseSpec
       )
       val examResults = Seq(
         ExamResult(
-          ExamResultId("01ARZ3NDEKTSV4RRFFQ69G5FAV"),
+          ExamResultId(ulidString),
           ExamId("exam-id"),
           Score(85),
           StudentId("student-id"),
@@ -312,7 +319,7 @@ class ExamResultUsecaseSpec
       )
       val examResults = Seq(
         ExamResult(
-          ExamResultId("01ARZ3NDEKTSV4RRFFQ69G5FAV"),
+          ExamResultId(ulidString),
           ExamId("exam-id"),
           Score(85),
           StudentId("student-id"),

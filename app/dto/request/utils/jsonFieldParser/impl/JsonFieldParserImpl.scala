@@ -10,7 +10,7 @@ class JsonFieldParserImpl extends JsonFieldParser {
   override def extractFields(
       json: JsValue,
       createParseList: Map[String, String] => List[Either[String, Any]]
-  ): Either[String, List[Any]] = {
+  ): Either[String, List[Any]] =
     json.asOpt[Map[String, String]] match {
       case Some(requestBody) =>
         val parseResults = createParseList(requestBody)
@@ -23,11 +23,9 @@ class JsonFieldParserImpl extends JsonFieldParser {
       case None =>
         Left("Invalid JSON format")
     }
-  }
 
   override def toTuple(
       validatedFields: List[Any]
-  ): Tuple = {
+  ): Tuple =
     validatedFields.foldRight[Tuple](EmptyTuple)(_ *: _)
-  }
 }

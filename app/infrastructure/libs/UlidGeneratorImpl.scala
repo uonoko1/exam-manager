@@ -9,7 +9,6 @@ import scala.util.Try
 class UlidGeneratorImpl @Inject() extends UlidGenerator {
   override def generate(): String = ULID.newULID.toString
 
-  override def isValid(ulid: String): Boolean = {
+  override def isValid(ulid: String): Boolean =
     Try(ULID.fromString(ulid)).isSuccess
-  }
 }

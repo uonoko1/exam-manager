@@ -1,7 +1,7 @@
 package dto.response.examResult.entity
 
 import domain.examResult.entity.ExamResult
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{ Json, Writes }
 import play.api.libs.json.JsValue
 
 case class ExamResultResponseDto(

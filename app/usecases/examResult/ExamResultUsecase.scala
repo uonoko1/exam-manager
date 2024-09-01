@@ -5,20 +5,23 @@ import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import domain.evaluator.`trait`.Evaluator
 import domain.evaluationPeriodProvider.`trait`.EvaluationPeriodProvider
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import usecases.examResult.repository.ExamResultRepository
 import usecases.examResult.logic.examResultUpdater.`trait`.ExamResultUpdater
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import usecases.exam.repository.ExamRepository
+import dto.request.examResult.valueObject._
+import dto.request.exam.valueObject._
 import utils.UlidGenerator
 import utils.SystemClock
 import javax.inject._
-import scala.concurrent.{Future, ExecutionContext}
-import java.time.{ZonedDateTime, DayOfWeek, LocalDate}
-import java.time.temporal.{ChronoUnit, TemporalAdjusters}
+import scala.concurrent.{ ExecutionContext, Future }
+import java.time.{ DayOfWeek, LocalDate, ZonedDateTime }
+import java.time.temporal.{ ChronoUnit, TemporalAdjusters }
 import cats.data.EitherT
 import cats.implicits._
 import scala.concurrent.Future
+import dto.request.examResult.ToDomainConverter.ExamResultToDomainConverter
 
 @Singleton
 class ExamResultUsecase @Inject() (
@@ -33,15 +36,31 @@ class ExamResultUsecase @Inject() (
 )(implicit ec: ExecutionContext) {
 
   def saveExamResult(
-      examId: ExamId,
-      subject: Subject,
-      score: Score,
-      studentId: StudentId
-  ): Future[Either[String, ExamResult]] = {
+      examIdRequestDto: ExamIdRequestDto,
+      subjectRequestDto: SubjectRequestDto,
+      scoreRequestDto: ScoreRequestDto,
+      studentIdRequestDto: StudentIdRequestDto
+  ): Future[Either[String, ExamResult]] =
     (for {
-      examResultId <- EitherT.rightT[Future, String](ulidGenerator.generate())
+      (examId, subject, score, studentId) <- EitherT.fromEither[Future](
+        ExamResultToDomainConverter.convert[(ExamId, Subject, Score, StudentId)](
+          Some(examIdRequestDto),
+          Some(subjectRequestDto),
+          Some(scoreRequestDto),
+          Some(studentIdRequestDto)
+        )
+      )
+
+      examResultIdStr <- EitherT.rightT[Future, String](
+        ulidGenerator.generate()
+      )
+
+      examResultId <- EitherT.fromEither[Future](
+        ExamResultId.create(examResultIdStr)
+      )
+
       examResult = ExamResult(
-        ExamResultId.create(examResultId),
+        examResultId,
         examId,
         score,
         studentId,
@@ -51,15 +70,23 @@ class ExamResultUsecase @Inject() (
       )
       savedExamResult <- EitherT(examResultRepository.save(examResult))
     } yield savedExamResult).value
-  }
 
   def findById(
-      examResultId: ExamResultId
-  ): Future[Either[String, Option[ExamResult]]] = {
-    examResultRepository.findById(examResultId)
-  }
+      examResultIdRequestDto: ExamResultIdRequestDto
+  ): Future[Either[String, Option[ExamResult]]] =
+    (for {
+      Tuple1(examResultId) <- EitherT.fromEither[Future](
+        ExamResultToDomainConverter.convert[Tuple1[ExamResultId]](
+          Some(examResultIdRequestDto)
+        )
+      )
 
-  def evaluateResults(): Future[Either[String, Unit]] = {
+      result <- EitherT(
+        examResultRepository.findById(examResultId)
+      )
+    } yield result).value
+
+  def evaluateResults(): Future[Either[String, Unit]] =
     (for {
       (startDate, endDate) <- EitherT.pure[Future, String](
         evaluationPeriodProvider.getEvaluationPeriod(systemClock.now())
@@ -86,5 +113,4 @@ class ExamResultUsecase @Inject() (
         } yield ()
       }
     } yield ()).value
-  }
 }

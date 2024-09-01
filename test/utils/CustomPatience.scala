@@ -1,7 +1,7 @@
 package utils
 
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Span, Seconds, Millis}
+import org.scalatest.time.{ Millis, Seconds, Span }
 
 trait CustomPatience extends ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(

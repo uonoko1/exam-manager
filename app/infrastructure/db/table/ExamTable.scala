@@ -1,7 +1,7 @@
 package infrastructure.db.table
 
 import slick.jdbc.JdbcProfile
-import slick.lifted.{ProvenShape, TableQuery, Tag}
+import slick.lifted.{ ProvenShape, TableQuery, Tag }
 import slick.sql.SqlProfile.ColumnOption.NotNull
 import slick.jdbc.MySQLProfile.api._
 import dto.infrastructure.exam.entity.ExamDto
