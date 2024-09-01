@@ -11,7 +11,7 @@ import views.html.defaultpages.badRequest
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import dto.infrastructure.exam.valueObject.ExamIdDto
-import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
+import dto.request.examResult.jsonParser.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
 import dto.response.examResult.entity.ExamResultResponseDto
 import play.api.libs.json.Json
 

@@ -1,7 +1,7 @@
-package dto.request.examResult.valueObject.examResultIdRequestConverter.impl
+package dto.request.examResult.jsonParser.examResultIdRequestConverter.impl
 
 import domain.examResult.valueObject.ExamResultId
-import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
+import dto.request.examResult.jsonParser.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
 import utils.UlidGenerator
 import javax.inject._
 

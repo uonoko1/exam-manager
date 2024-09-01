@@ -1,4 +1,4 @@
-package dto.request.examResult.valueObject.scoreRequestConverter.`trait`
+package dto.request.examResult.jsonParser.scoreRequestConverter.`trait`
 
 import domain.examResult.valueObject.Score
 

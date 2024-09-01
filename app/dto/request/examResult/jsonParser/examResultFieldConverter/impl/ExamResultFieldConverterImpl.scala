@@ -3,10 +3,10 @@ package dto.request.examResult.jsonParser.examResultFieldConverter.impl
 import javax.inject._
 import dto.request.exam.valueObject.examIdRequestConverter.`trait`.ExamIdRequestConverter
 import dto.request.exam.valueObject.subjectRequestConverter.`trait`.SubjectRequestConverter
-import dto.request.examResult.valueObject.studentIdRequestConverter.`trait`.StudentIdRequestConverter
-import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
-import dto.request.examResult.valueObject.scoreRequestConverter.`trait`.ScoreRequestConverter
-import dto.request.examResult.valueObject.evaluationRequestConverter.`trait`.EvaluationRequestConverter
+import dto.request.examResult.jsonParser.studentIdRequestConverter.`trait`.StudentIdRequestConverter
+import dto.request.examResult.jsonParser.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
+import dto.request.examResult.jsonParser.scoreRequestConverter.`trait`.ScoreRequestConverter
+import dto.request.examResult.jsonParser.evaluationRequestConverter.`trait`.EvaluationRequestConverter
 import dto.utils.dateTime.createdAtRequestConverter.`trait`.CreatedAtRequestConverter
 import dto.utils.dateTime.updatedAtRequestConverter.`trait`.UpdatedAtRequestConverter
 import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter

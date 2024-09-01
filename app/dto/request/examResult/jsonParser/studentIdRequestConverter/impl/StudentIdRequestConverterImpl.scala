@@ -1,8 +1,8 @@
-package dto.request.examResult.valueObject.studentIdRequestConverter.impl
+package dto.request.examResult.jsonParser.studentIdRequestConverter.impl
 
 import javax.inject._
 import domain.examResult.valueObject.StudentId
-import dto.request.examResult.valueObject.studentIdRequestConverter.`trait`.StudentIdRequestConverter
+import dto.request.examResult.jsonParser.studentIdRequestConverter.`trait`.StudentIdRequestConverter
 import utils.UlidGenerator
 
 @Singleton

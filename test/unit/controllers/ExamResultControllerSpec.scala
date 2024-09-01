@@ -22,7 +22,7 @@ import domain.examResult.entity.ExamResult
 import usecases.examResult.ExamResultUsecase
 import dto.response.examResult.entity.ExamResultResponseDto
 import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
-import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
+import dto.request.examResult.jsonParser.examResultIdRequestConverter.trait.ExamResultIdRequestConverter
 import utils.CustomPatience
 
 import scala.concurrent.Future

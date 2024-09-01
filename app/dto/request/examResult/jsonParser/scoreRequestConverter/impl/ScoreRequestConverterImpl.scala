@@ -1,7 +1,7 @@
-package dto.request.examResult.valueObject.scoreRequestConverter.impl
+package dto.request.examResult.jsonParser.scoreRequestConverter.impl
 
 import domain.examResult.valueObject.Score
-import dto.request.examResult.valueObject.scoreRequestConverter.`trait`.ScoreRequestConverter
+import dto.request.examResult.jsonParser.scoreRequestConverter.`trait`.ScoreRequestConverter
 import javax.inject._
 import scala.util.Try
 

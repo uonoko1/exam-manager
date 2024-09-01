@@ -1,4 +1,4 @@
-package dto.request.examResult.valueObject.studentIdRequestConverter.`trait`
+package dto.request.examResult.jsonParser.studentIdRequestConverter.`trait`
 
 import domain.examResult.valueObject.StudentId
 

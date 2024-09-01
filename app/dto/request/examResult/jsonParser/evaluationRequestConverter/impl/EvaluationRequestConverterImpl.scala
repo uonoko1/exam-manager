@@ -1,7 +1,7 @@
-package dto.request.examResult.valueObject.evaluationRequestConverter.impl
+package dto.request.examResult.jsonParser.evaluationRequestConverter.impl
 
 import domain.examResult.valueObject.Evaluation
-import dto.request.examResult.valueObject.evaluationRequestConverter.`trait`.EvaluationRequestConverter
+import dto.request.examResult.jsonParser.evaluationRequestConverter.`trait`.EvaluationRequestConverter
 import javax.inject._
 
 @Singleton

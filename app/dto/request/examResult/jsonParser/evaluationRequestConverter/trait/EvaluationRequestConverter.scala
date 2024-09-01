@@ -1,4 +1,4 @@
-package dto.request.examResult.valueObject.evaluationRequestConverter.`trait`
+package dto.request.examResult.jsonParser.evaluationRequestConverter.`trait`
 
 import domain.examResult.valueObject.Evaluation
 
