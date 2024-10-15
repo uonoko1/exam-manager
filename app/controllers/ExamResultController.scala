@@ -2,16 +2,17 @@ package controllers
 
 import javax.inject._
 import play.api.mvc._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import usecases.examResult.ExamResultUsecase
-import scala.util.{Try, Success, Failure}
+import scala.util.{ Failure, Success, Try }
 import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
 import play.api.libs.json.JsValue
 import views.html.defaultpages.badRequest
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
 import dto.infrastructure.exam.valueObject.ExamIdDto
-import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
+import dto.request.exam.valueObject._
+import dto.request.examResult.valueObject._
 import dto.response.examResult.entity.ExamResultResponseDto
 import play.api.libs.json.Json
 
@@ -20,7 +21,7 @@ class ExamResultController @Inject() (
     cc: ControllerComponents,
     examResultUsecase: ExamResultUsecase,
     examResultFieldConverter: ExamResultFieldConverter,
-    examResultIdRequestConverter: ExamResultIdRequestConverter
+    examResultIdRequestDtoFactory: ExamResultIdRequestDtoFactory
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc) {
 
@@ -29,10 +30,10 @@ class ExamResultController @Inject() (
       examResultFieldConverter.convertAndValidate(request.body) match {
         case Right(
               (
-                examId: ExamId,
-                subject: Subject,
-                score: Score,
-                studentId: StudentId
+                examId: ExamIdRequestDto,
+                subject: SubjectRequestDto,
+                score: ScoreRequestDto,
+                studentId: StudentIdRequestDto
               )
             ) =>
           examResultUsecase
@@ -59,7 +60,7 @@ class ExamResultController @Inject() (
 
   def getExamResult(examResultId: String): Action[AnyContent] = Action.async {
     implicit request =>
-      examResultIdRequestConverter.validateAndCreate(examResultId) match {
+      examResultIdRequestDtoFactory.create(examResultId) match {
         case Right(validatedExamResultId) =>
           examResultUsecase
             .findById(validatedExamResultId)

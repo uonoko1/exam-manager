@@ -9,7 +9,7 @@ import dto.utils.dateTime.dateTimeConverter.`trait`.DateTimeConverter
 class CreatedAtRequestConverterImpl @Inject() (
     dateTimeConverter: DateTimeConverter
 ) extends CreatedAtRequestConverter {
-  override def validateAndCreate(value: String): Either[String, CreatedAt] = {
+  override def validateAndCreate(value: String): Either[String, CreatedAt] =
     if (value.isEmpty) {
       Left("CreatedAt cannot be empty")
     } else {
@@ -18,5 +18,4 @@ class CreatedAtRequestConverterImpl @Inject() (
         case Left(error)          => Left(s"Invalid CreatedAt format: $error")
       }
     }
-  }
 }

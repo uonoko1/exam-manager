@@ -1,12 +1,9 @@
 package dto.request.examResult.jsonParser.examResultFieldConverter.impl
 
 import javax.inject._
-import dto.request.exam.valueObject.examIdRequestConverter.`trait`.ExamIdRequestConverter
-import dto.request.exam.valueObject.subjectRequestConverter.`trait`.SubjectRequestConverter
-import dto.request.examResult.valueObject.studentIdRequestConverter.`trait`.StudentIdRequestConverter
-import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
-import dto.request.examResult.valueObject.scoreRequestConverter.`trait`.ScoreRequestConverter
-import dto.request.examResult.valueObject.evaluationRequestConverter.`trait`.EvaluationRequestConverter
+import dto.request.exam.valueObject._
+import dto.request.examResult.valueObject._
+import dto.request.utils.dateTime._
 import dto.utils.dateTime.createdAtRequestConverter.`trait`.CreatedAtRequestConverter
 import dto.utils.dateTime.updatedAtRequestConverter.`trait`.UpdatedAtRequestConverter
 import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
@@ -15,14 +12,11 @@ import play.api.libs.json.JsValue
 
 @Singleton
 class ExamResultFieldConverterImpl @Inject() (
-    examIdRequestConverter: ExamIdRequestConverter,
-    studentIdRequestConverter: StudentIdRequestConverter,
-    examResultIdRequestConverter: ExamResultIdRequestConverter,
-    subjectRequestConverter: SubjectRequestConverter,
-    scoreRequestConverter: ScoreRequestConverter,
-    evaluationRequestConverter: EvaluationRequestConverter,
-    createdAtRequestConverter: CreatedAtRequestConverter,
-    updatedAtRequestConverter: UpdatedAtRequestConverter,
+    examResultIdRequestDtoFactory: ExamResultIdRequestDtoFactory,
+    examIdRequestDtoFactory: ExamIdRequestDtoFactory,
+    studentIdRequestDtoFactory: StudentIdRequestDtoFactory,
+    createdAtRequestFactory: CreatedAtRequestFactory,
+    updatedAtRequestFactory: UpdatedAtRequestFactory,
     jsonFieldParser: JsonFieldParser
 ) extends ExamResultFieldConverter {
 
@@ -31,29 +25,32 @@ class ExamResultFieldConverterImpl @Inject() (
   ): List[Either[String, Any]] = List(
     requestBody
       .get("examResultId")
-      .map(examResultIdRequestConverter.validateAndCreate),
-    requestBody.get("examId").map(examIdRequestConverter.validateAndCreate),
+      .map(examResultIdRequestDtoFactory.create),
+    requestBody
+      .get("examId")
+      .map(examIdRequestDtoFactory.create),
     requestBody
       .get("subject")
-      .map(subjectRequestConverter.validateAndCreate),
-    requestBody.get("score").map(scoreRequestConverter.validateAndCreate),
+      .map(SubjectRequestDto.create),
+    requestBody
+      .get("score")
+      .map(ScoreRequestDto.create),
     requestBody
       .get("studentId")
-      .map(studentIdRequestConverter.validateAndCreate),
+      .map(studentIdRequestDtoFactory.create),
     requestBody
       .get("evaluation")
-      .map(evaluationRequestConverter.validateAndCreate),
+      .map(EvaluationRequestDto.create),
     requestBody
       .get("createdAt")
-      .map(createdAtRequestConverter.validateAndCreate),
+      .map(createdAtRequestFactory.create),
     requestBody
       .get("updatedAt")
-      .map(updatedAtRequestConverter.validateAndCreate)
+      .map(updatedAtRequestFactory.create)
   ).flatten
 
-  override def convertAndValidate(json: JsValue): Either[String, Tuple] = {
+  override def convertAndValidate(json: JsValue): Either[String, Tuple] =
     jsonFieldParser.extractFields(json, createParseList).map { parsedFields =>
       jsonFieldParser.toTuple(parsedFields)
     }
-  }
 }

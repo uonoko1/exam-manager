@@ -1,11 +1,10 @@
 package domain.exam.valueObject
 
-
 enum Subject(val value: String) {
-    case Math extends Subject("Math")
-    case Science extends Subject("Science")
-    case History extends Subject("History")
-    case English extends Subject("English")
+  case Math extends Subject("Math")
+  case Science extends Subject("Science")
+  case History extends Subject("History")
+  case English extends Subject("English")
 }
 
 object Subject {

@@ -8,5 +8,6 @@ object StudentIdDto {
   def fromDomain(studentId: StudentId): StudentIdDto = StudentIdDto(
     studentId.value
   )
-  def toDomain(dto: StudentIdDto): StudentId = StudentId.create(dto.value)
+  def toDomain(dto: StudentIdDto): Either[String, StudentId] =
+    StudentId.create(dto.value)
 }

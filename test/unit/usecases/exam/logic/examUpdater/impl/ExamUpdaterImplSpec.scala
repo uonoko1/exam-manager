@@ -12,7 +12,7 @@ import domain.examResult.entity.ExamResult
 import domain.exam.valueObject._
 import domain.examResult.valueObject._
 import domain.utils.dateTime.UpdatedAt
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import usecases.exam.repository.ExamRepository
 import utils.CustomPatience
 import utils.SystemClock
@@ -33,9 +33,8 @@ class ExamUpdaterImplSpec
   when(mockSystemClock.now())
     .thenReturn(ZonedDateTime.parse("2024-07-20T12:00:00+09:00[Asia/Tokyo]"))
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     reset(mockExamRepository)
-  }
 
   "ExamUpdaterImpl#updateEvaluations" should {
     "update the exam status to Evaluated when all exam results are evaluated" in {

@@ -2,8 +2,8 @@ package infrastructure.db
 
 import slick.jdbc.JdbcProfile
 import play.api.db.slick.DatabaseConfigProvider
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.{ Inject, Singleton }
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class DatabaseConfig @Inject() (

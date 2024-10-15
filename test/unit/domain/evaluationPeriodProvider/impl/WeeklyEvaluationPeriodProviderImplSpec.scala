@@ -2,7 +2,7 @@ package domain.evaluationPeriodProvider.impl
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import java.time.{ZonedDateTime, ZoneId}
+import java.time.{ ZoneId, ZonedDateTime }
 import utils.CustomPatience
 
 class WeeklyEvaluationPeriodProviderImplSpec

@@ -1,9 +1,9 @@
 package domain.exam.valueObject
 
 enum EvaluationStatus(val value: String) {
-    case Evaluated extends EvaluationStatus("Evaluated")
-    case PartiallyEvaluated extends EvaluationStatus("Partially Evaluated")
-    case NotEvaluated extends EvaluationStatus("Not Evaluated")
+  case Evaluated extends EvaluationStatus("Evaluated")
+  case PartiallyEvaluated extends EvaluationStatus("Partially Evaluated")
+  case NotEvaluated extends EvaluationStatus("Not Evaluated")
 }
 
 object EvaluationStatus {

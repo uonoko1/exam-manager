@@ -1,6 +1,6 @@
 package infrastructure.providers
 
-import com.google.inject.{Inject, Provider}
+import com.google.inject.{ Inject, Provider }
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.actor.Scheduler
 

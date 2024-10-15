@@ -1,9 +1,9 @@
 package infrastructure.db.repositories
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 import infrastructure.db.DatabaseConfig
 import infrastructure.db.table.ExamResultTable
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import usecases.examResult.repository.ExamResultRepository
 import domain.examResult.entity.ExamResult
 import domain.exam.valueObject._

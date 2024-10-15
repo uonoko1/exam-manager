@@ -4,23 +4,23 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.time.{ Millis, Seconds, Span }
 import org.scalatest.concurrent.Eventually._
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 import org.apache.pekko.actor.ActorSystem
 
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.bind
-import play.api.{Application, Configuration}
+import play.api.{ Application, Configuration }
 import play.api.db.slick.DatabaseConfigProvider
 
 import domain.exam.entity.Exam
 import domain.exam.valueObject._
 import domain.examResult.entity.ExamResult
 import domain.examResult.valueObject._
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import domain.evaluationPeriodProvider.`trait`.EvaluationPeriodProvider
 import domain.evaluationPeriodProvider.impl.WeeklyEvaluationPeriodProviderImpl
 import domain.evaluator.`trait`.Evaluator
@@ -32,12 +32,12 @@ import usecases.examResult.logic.examResultUpdater.`trait`.ExamResultUpdater
 import usecases.examResult.logic.examResultUpdater.impl.ExamResultUpdaterImpl
 import usecases.exam.logic.examUpdater.`trait`.ExamUpdater
 import usecases.exam.logic.examUpdater.impl.ExamUpdaterImpl
-import infrastructure.db.table.{ExamTable, ExamResultTable}
+import infrastructure.db.table.{ ExamResultTable, ExamTable }
 import infrastructure.db.repositories.ExamRepositoryImplOnDb
 import infrastructure.db.repositories.ExamResultRepositoryImplOnDb
 import infrastructure.db.DatabaseConfig
 import utils.CustomPatience
-import utils.{SystemClock, UlidGenerator}
+import utils.{ SystemClock, UlidGenerator }
 import utils.TestDatabaseConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global

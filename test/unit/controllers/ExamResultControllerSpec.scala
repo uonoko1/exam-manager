@@ -1,6 +1,6 @@
 package controllers
 
-import play.api.test.{FakeRequest, Injecting}
+import play.api.test.{ FakeRequest, Injecting }
 import play.api.test.Helpers._
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -11,22 +11,27 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.scalatest.matchers.must.Matchers._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.time.{ Millis, Seconds, Span }
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 
 import domain.examResult.valueObject._
 import domain.exam.valueObject._
-import domain.utils.dateTime.{CreatedAt, UpdatedAt}
+import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import domain.examResult.entity.ExamResult
 import usecases.examResult.ExamResultUsecase
 import dto.response.examResult.entity.ExamResultResponseDto
 import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
-import dto.request.examResult.valueObject.examResultIdRequestConverter.`trait`.ExamResultIdRequestConverter
 import utils.CustomPatience
 
 import scala.concurrent.Future
 import java.time.ZonedDateTime
+import dto.request.examResult.valueObject.ExamResultIdRequestDtoFactory
+import dto.request.exam.valueObject.SubjectRequestDto
+import dto.request.examResult.valueObject.ScoreRequestDto
+import dto.request.exam.valueObject.ExamIdRequestDto
+import dto.request.examResult.valueObject.StudentIdRequestDto
+import dto.request.examResult.valueObject.ExamResultIdRequestDto
 
 class ExamResultControllerSpec
     extends PlaySpec
@@ -39,26 +44,26 @@ class ExamResultControllerSpec
   val mockExamResultFieldConverter: ExamResultFieldConverter = mock(
     classOf[ExamResultFieldConverter]
   )
-  val mockExamResultIdRequestConverter: ExamResultIdRequestConverter = mock(
-    classOf[ExamResultIdRequestConverter]
+  val mockExamResultIdRequestDtoFactory: ExamResultIdRequestDtoFactory = mock(
+    classOf[ExamResultIdRequestDtoFactory]
   )
 
   override def fakeApplication() = new GuiceApplicationBuilder()
     .overrides(
       bind[ExamResultUsecase].toInstance(mockUsecase),
       bind[ExamResultFieldConverter].toInstance(mockExamResultFieldConverter),
-      bind[ExamResultIdRequestConverter]
-        .toInstance(mockExamResultIdRequestConverter)
+      bind[ExamResultIdRequestDtoFactory]
+        .toInstance(mockExamResultIdRequestDtoFactory)
     )
     .build()
 
   "ExamResultController POST /exam-result" should {
     "return OK for valid parameters" in {
       val examResult = ExamResult(
-        ExamResultId.create("test-id"),
-        ExamId.create("exam-id"),
+        ExamResultId("test-id"),
+        ExamId("exam-id"),
         Score(85),
-        StudentId.create("student-id"),
+        StudentId("student-id"),
         Evaluation.Passed,
         CreatedAt(ZonedDateTime.now()),
         UpdatedAt(ZonedDateTime.now())
@@ -66,10 +71,10 @@ class ExamResultControllerSpec
 
       when(
         mockUsecase.saveExamResult(
-          any[ExamId],
-          any[Subject],
-          any[Score],
-          any[StudentId]
+          any[ExamIdRequestDto],
+          any[SubjectRequestDto],
+          any[ScoreRequestDto],
+          any[StudentIdRequestDto]
         )
       )
         .thenReturn(Future.successful(Right(examResult)))
@@ -85,10 +90,10 @@ class ExamResultControllerSpec
         .thenReturn(
           Right(
             (
-              ExamId("exam-id"),
-              Subject.Math,
-              Score(85),
-              StudentId("student-id")
+              ExamIdRequestDto("exam-id"),
+              SubjectRequestDto.Math,
+              ScoreRequestDto(85),
+              StudentIdRequestDto("student-id")
             )
           )
         )
@@ -129,20 +134,20 @@ class ExamResultControllerSpec
   "ExamResultController GET /exam-result/:examResultId" should {
     "return an ExamResult corresponding to the examResultId" in {
       val examResult = ExamResult(
-        ExamResultId.create("test-id"),
-        ExamId.create("exam-id"),
+        ExamResultId("test-id"),
+        ExamId("exam-id"),
         Score(85),
-        StudentId.create("student-id"),
+        StudentId("student-id"),
         Evaluation.Passed,
         CreatedAt(ZonedDateTime.now()),
         UpdatedAt(ZonedDateTime.now())
       )
 
-      when(mockUsecase.findById(any[ExamResultId]))
+      when(mockUsecase.findById(any[ExamResultIdRequestDto]))
         .thenReturn(Future.successful(Right(Some(examResult))))
 
-      when(mockExamResultIdRequestConverter.validateAndCreate(any[String]))
-        .thenReturn(Right(ExamResultId("examResult-id")))
+      when(mockExamResultIdRequestDtoFactory.create(any[String]))
+        .thenReturn(Right(ExamResultIdRequestDto("examResult-id")))
 
       val request = FakeRequest(GET, "/exam-result/examResult-id")
       val result = route(app, request).get
@@ -156,11 +161,11 @@ class ExamResultControllerSpec
     }
 
     "return NotFound for non-existing examResult" in {
-      when(mockUsecase.findById(any[ExamResultId]))
+      when(mockUsecase.findById(any[ExamResultIdRequestDto]))
         .thenReturn(Future.successful(Right(None)))
 
-      when(mockExamResultIdRequestConverter.validateAndCreate(any[String]))
-        .thenReturn(Right(ExamResultId("examResult-id")))
+      when(mockExamResultIdRequestDtoFactory.create(any[String]))
+        .thenReturn(Right(ExamResultIdRequestDto("examResult-id")))
 
       val request = FakeRequest(GET, "/exam-result/examResult-id")
       val result = route(app, request).get
@@ -172,7 +177,7 @@ class ExamResultControllerSpec
 
     "return BadRequest for invalid examId" in {
       val invalidExamId = "invalid-ulid"
-      when(mockExamResultIdRequestConverter.validateAndCreate(any[String]))
+      when(mockExamResultIdRequestDtoFactory.create(any[String]))
         .thenReturn(Left("Invalid exam ID"))
 
       val request = FakeRequest(GET, s"/exam-result/$invalidExamId")

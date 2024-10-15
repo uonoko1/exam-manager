@@ -1,6 +1,6 @@
 package utils
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.duration._
 import org.apache.pekko.actor.Scheduler
 import java.sql.SQLTransientConnectionException
@@ -10,7 +10,7 @@ object Retry {
       operation: => Future[T],
       retries: Int,
       delay: FiniteDuration
-  )(implicit ec: ExecutionContext, scheduler: Scheduler): Future[T] = {
+  )(implicit ec: ExecutionContext, scheduler: Scheduler): Future[T] =
     operation.recoverWith {
       case ex: SQLTransientConnectionException if retries > 0 =>
         println(
@@ -20,5 +20,4 @@ object Retry {
           withRetry(operation, retries - 1, delay)
         }
     }
-  }
 }
