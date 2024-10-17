@@ -1,38 +1,18 @@
-services:
-  db:
-    environment:
-      MYSQL_DATABASE: exam_manager
-      MYSQL_PASSWORD: your_password
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_USER: your_username
-    image: mysql:8.0
-    ports:
-      - published: 3306
-        target: 3306
-    volumes:
-      - exam_manager_db_data:/var/lib/mysql:rw
-
-  app:
-    build:
-      context: ..
-      dockerfile: .devcontainer/Dockerfile
-      args:
-        USERNAME: ${USER}
-    command: sleep infinity
-    depends_on:
-      db:
-        condition: service_started
-    environment:
-      DB_PASSWORD: your_password
-      DB_URL: jdbc:mysql://db:3306/exam_manager
-      DB_USER: your_username
-    ports:
-      - published: 9000
-        target: 9000
-    volumes:
-      # Adjust the path below to match the location where you cloned the application repository
-      - ${HOME}/Development/exam-manager:/workspaces/exam-manager:cached
-
 version: '3.9'
-volumes:
-  exam_manager_db_data: {}
+services:
+    app:
+        build:
+            context: ..
+            dockerfile: .devcontainer/Dockerfile
+            args:
+                USERNAME: ${USER}
+        command: sleep infinity
+        environment:
+            DB_PASSWORD: your_password
+            DB_URL: jdbc:mysql://db:3306/exam_manager
+            DB_USER: your_username
+        ports:
+            - "9020:9000"
+        volumes:
+            # Adjust the path below to match the location where you cloned the application repository
+            - ${HOME}/Development/exam-manager:/workspaces/exam-manager:cached
