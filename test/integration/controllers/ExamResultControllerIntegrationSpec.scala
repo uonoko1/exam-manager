@@ -39,7 +39,6 @@ import infrastructure.libs.UlidGeneratorImpl
 import infrastructure.db.repositories.{ ExamRepositoryImplOnDb, ExamResultRepositoryImplOnDb }
 import infrastructure.db.DatabaseConfig
 import infrastructure.db.table.ExamResultTable
-import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
 import dto.response.examResult.entity.ExamResultResponseDto
 import utils.SystemClock
 import utils.UlidGenerator

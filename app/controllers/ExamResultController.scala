@@ -5,7 +5,7 @@ import play.api.mvc._
 import scala.concurrent.{ ExecutionContext, Future }
 import usecases.examResult.ExamResultUsecase
 import scala.util.{ Failure, Success, Try }
-import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
+import dto.request.examResult.jsonParser.examResultFieldParser.`trait`.ExamResultFieldParser
 import play.api.libs.json.JsValue
 import views.html.defaultpages.badRequest
 import domain.examResult.valueObject._
@@ -20,14 +20,14 @@ import play.api.libs.json.Json
 class ExamResultController @Inject() (
     cc: ControllerComponents,
     examResultUsecase: ExamResultUsecase,
-    examResultFieldConverter: ExamResultFieldConverter,
+    examResultFieldParser: ExamResultFieldParser,
     examResultIdRequestDtoFactory: ExamResultIdRequestDtoFactory
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc) {
 
   def saveExamResult: Action[JsValue] = Action.async(parse.json) {
     implicit request =>
-      examResultFieldConverter.convertAndValidate(request.body) match {
+      examResultFieldParser.parse(request.body) match {
         case Right(
               (
                 examId: ExamIdRequestDto,
