@@ -22,8 +22,8 @@ import domain.evaluationPeriodProvider.impl.WeeklyEvaluationPeriodProviderImpl
 import dto.utils.dateTime.createdAtRequestConverter.impl.CreatedAtRequestConverterImpl
 import dto.utils.dateTime.updatedAtRequestConverter.impl.UpdatedAtRequestConverterImpl
 import dto.utils.dateTime.dateTimeConverter.impl.DateTimeConverterImpl
-import dto.request.examResult.jsonParser.examResultFieldConverter.impl.ExamResultFieldConverterImpl
-import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
+import dto.request.examResult.jsonParser.examResultFieldParser.impl.ExamResultFieldParserImpl
+import dto.request.examResult.jsonParser.examResultFieldParser.`trait`.ExamResultFieldParser
 import dto.utils.dateTime.createdAtRequestConverter.`trait`.CreatedAtRequestConverter
 import dto.utils.dateTime.updatedAtRequestConverter.`trait`.UpdatedAtRequestConverter
 import dto.utils.dateTime.dateTimeConverter.`trait`.DateTimeConverter
@@ -60,8 +60,8 @@ class Module(environment: Environment, configuration: Configuration)
     bind(classOf[Scheduler])
       .toProvider(classOf[SchedulerProvider])
       .asEagerSingleton()
-    bind(classOf[ExamResultFieldConverter])
-      .to(classOf[ExamResultFieldConverterImpl])
+    bind(classOf[ExamResultFieldParser])
+      .to(classOf[ExamResultFieldParserImpl])
       .asEagerSingleton()
     bind(classOf[CreatedAtRequestConverter])
       .to(classOf[CreatedAtRequestConverterImpl])

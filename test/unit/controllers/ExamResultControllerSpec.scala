@@ -21,7 +21,7 @@ import domain.utils.dateTime.{ CreatedAt, UpdatedAt }
 import domain.examResult.entity.ExamResult
 import usecases.examResult.ExamResultUsecase
 import dto.response.examResult.entity.ExamResultResponseDto
-import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
+import dto.request.examResult.jsonParser.examResultFieldParser.`trait`.ExamResultFieldParser
 import utils.CustomPatience
 
 import scala.concurrent.Future
@@ -41,8 +41,8 @@ class ExamResultControllerSpec
     with CustomPatience {
 
   val mockUsecase: ExamResultUsecase = mock(classOf[ExamResultUsecase])
-  val mockExamResultFieldConverter: ExamResultFieldConverter = mock(
-    classOf[ExamResultFieldConverter]
+  val mockexamResultFieldParser: ExamResultFieldParser = mock(
+    classOf[ExamResultFieldParser]
   )
   val mockExamResultIdRequestDtoFactory: ExamResultIdRequestDtoFactory = mock(
     classOf[ExamResultIdRequestDtoFactory]
@@ -51,7 +51,7 @@ class ExamResultControllerSpec
   override def fakeApplication() = new GuiceApplicationBuilder()
     .overrides(
       bind[ExamResultUsecase].toInstance(mockUsecase),
-      bind[ExamResultFieldConverter].toInstance(mockExamResultFieldConverter),
+      bind[ExamResultFieldParser].toInstance(mockexamResultFieldParser),
       bind[ExamResultIdRequestDtoFactory]
         .toInstance(mockExamResultIdRequestDtoFactory)
     )
@@ -86,7 +86,7 @@ class ExamResultControllerSpec
         "studentId" -> "student-id"
       )
 
-      when(mockExamResultFieldConverter.convertAndValidate(any[JsValue]))
+      when(mockexamResultFieldParser.parse(any[JsValue]))
         .thenReturn(
           Right(
             (
@@ -118,7 +118,7 @@ class ExamResultControllerSpec
         "studentId" -> "student-id"
       )
 
-      when(mockExamResultFieldConverter.convertAndValidate(any[JsValue]))
+      when(mockexamResultFieldParser.parse(any[JsValue]))
         .thenReturn(Left("Invalid parameters"))
 
       val request = FakeRequest(POST, "/exam-result")

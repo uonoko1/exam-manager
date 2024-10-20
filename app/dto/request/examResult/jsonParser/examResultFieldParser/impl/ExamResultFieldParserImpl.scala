@@ -1,4 +1,4 @@
-package dto.request.examResult.jsonParser.examResultFieldConverter.impl
+package dto.request.examResult.jsonParser.examResultFieldParser.impl
 
 import javax.inject._
 import dto.request.exam.valueObject._
@@ -6,19 +6,19 @@ import dto.request.examResult.valueObject._
 import dto.request.utils.dateTime._
 import dto.utils.dateTime.createdAtRequestConverter.`trait`.CreatedAtRequestConverter
 import dto.utils.dateTime.updatedAtRequestConverter.`trait`.UpdatedAtRequestConverter
-import dto.request.examResult.jsonParser.examResultFieldConverter.`trait`.ExamResultFieldConverter
+import dto.request.examResult.jsonParser.examResultFieldParser.`trait`.ExamResultFieldParser
 import dto.request.utils.jsonFieldParser.`trait`.JsonFieldParser
 import play.api.libs.json.JsValue
 
 @Singleton
-class ExamResultFieldConverterImpl @Inject() (
+class ExamResultFieldParserImpl @Inject() (
     examResultIdRequestDtoFactory: ExamResultIdRequestDtoFactory,
     examIdRequestDtoFactory: ExamIdRequestDtoFactory,
     studentIdRequestDtoFactory: StudentIdRequestDtoFactory,
     createdAtRequestFactory: CreatedAtRequestFactory,
     updatedAtRequestFactory: UpdatedAtRequestFactory,
     jsonFieldParser: JsonFieldParser
-) extends ExamResultFieldConverter {
+) extends ExamResultFieldParser {
 
   private def createParseList(
       requestBody: Map[String, String]
@@ -49,7 +49,7 @@ class ExamResultFieldConverterImpl @Inject() (
       .map(updatedAtRequestFactory.create)
   ).flatten
 
-  override def convertAndValidate(json: JsValue): Either[String, Tuple] =
+  override def parse(json: JsValue): Either[String, Tuple] =
     jsonFieldParser.extractFields(json, createParseList).map { parsedFields =>
       jsonFieldParser.toTuple(parsedFields)
     }
