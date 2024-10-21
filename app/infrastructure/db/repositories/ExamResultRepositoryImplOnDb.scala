@@ -35,7 +35,7 @@ class ExamResultRepositoryImplOnDb @Inject() (
       .map(_ => Right(examResult))
       .recover {
         case ex: SQLTransientConnectionException =>
-          Left("Database connection error")
+          Left(s"Database connection error: ${ex.getMessage}")
         case ex: Throwable => Left(ex.getMessage)
       }
   }
@@ -59,7 +59,7 @@ class ExamResultRepositoryImplOnDb @Inject() (
       }
       .recover {
         case ex: SQLTransientConnectionException =>
-          Left("Database connection error")
+          Left(s"Database connection error: ${ex.getMessage}")
         case ex: Throwable => Left(ex.getMessage)
       }
   }
@@ -83,7 +83,7 @@ class ExamResultRepositoryImplOnDb @Inject() (
       }
       .recover {
         case ex: SQLTransientConnectionException =>
-          Left("Database connection error")
+          Left(s"Database connection error: ${ex.getMessage}")
         case ex: Throwable => Left(ex.getMessage)
       }
   }
@@ -100,7 +100,7 @@ class ExamResultRepositoryImplOnDb @Inject() (
       .map(_ => Right(examResult))
       .recover {
         case ex: SQLTransientConnectionException =>
-          Left("Database connection error")
+          Left(s"Database connection error: ${ex.getMessage}")
         case ex: Throwable => Left(ex.getMessage)
       }
   }
