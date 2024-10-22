@@ -37,7 +37,7 @@ If you are not using VSCode, follow these steps:
 2. Clone the repository and navigate to the root directory.
 3. Run the following command to build and run the development container:
     ~~~bash
-    docker-compose -f .devcontainer/docker-compose.yml up --build
+    docker compose -f .devcontainer/docker-compose.yml up --build
     ~~~
 4. You can use any IDE or editor to write and edit the code. To connect to the container terminal, use:
     ~~~bash
