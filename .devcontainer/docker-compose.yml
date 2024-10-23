@@ -1,18 +1,19 @@
 version: '3.9'
 services:
-    app:
-        build:
-            context: ..
-            dockerfile: .devcontainer/Dockerfile
-            args:
-                USERNAME: ${USER}
-        command: sleep infinity
-        environment:
-            DB_PASSWORD: your_password
-            DB_URL: jdbc:mysql://db:3306/exam_manager
-            DB_USER: your_username
-        ports:
-            - "9020:9000"
-        volumes:
-            # Adjust the path below to match the location where you cloned the application repository
-            - ${HOME}/Development/exam-manager:/workspaces/exam-manager:cached
+  app:
+    container_name: exam-manager-devcode
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        USERNAME: ${USER}
+    command: sleep infinity
+    environment:
+      DB_PASSWORD: your_password
+      DB_URL: jdbc:mysql://db:3306/exam_manager
+      DB_USER: your_username
+    ports:
+      - "9020:9000"
+    volumes:
+      # Adjust the path below to match the location where you cloned the application repository
+      - ${HOME}/Development/exam-manager:/workspaces/exam-manager:cached
