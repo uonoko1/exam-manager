@@ -41,20 +41,40 @@ If you are not using VSCode, follow these steps:
     ~~~
 4. You can use any IDE or editor to write and edit the code. To connect to the container terminal, use:
     ~~~bash
-    docker exec -it <container_name> /bin/bash
+    docker exec -it exam-manager-devcode /bin/bash
     ~~~
+5. After connecting to the container, manually execute the following setup steps (this is done automatically when using VSCode with devcontainers):
+
+    1. **Set up your GitHub SSH key:**
+        ~~~bash
+        mkdir -p ~/.ssh/github
+        echo "$GITHUB_SSH_PRIVATE_KEY" > ~/.ssh/github/id_rsa
+        chmod 600 ~/.ssh/github/id_rsa
+        ~~~
+
+    2. **Configure SSH for GitHub:**
+        ~~~bash
+        echo "$GITHUB_SSH_CONFIG" > ~/.ssh/config
+        chmod 600 ~/.ssh/config
+        ~~~
+
+    3. **Set up your global Git configuration:**
+        ~~~bash
+        echo "$GITCONFIG" > ~/.gitconfig
+        git config --global core.editor vim
+        ~~~
+
+    4. **Compile the project using sbt:**
+        ~~~bash
+        sbt compile
+        ~~~
 
 ### 2. Running the Application in Development
 Once you've written your code, you can run the application in a development environment using the following steps:
 
-1. Navigate to the localEnv directory:
+1. Build and run the development environment container:
     ~~~bash
-    cd localEnv
-    ~~~
-
-2. Build and run the development environment container:
-    ~~~bash
-    docker compose up --build
+    docker compose -f localEnv/docker-compose.yml up --build
     ~~~
     This will start the development version of the application.
 
