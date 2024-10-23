@@ -1,6 +1,7 @@
 version: '3.9'
 services:
   app:
+    container_name: exam-manager-devapp
     build:
       context: ..
       dockerfile: localEnv/Dockerfile
@@ -15,6 +16,7 @@ services:
     command: sbt run
 
   db:
+    container_name: exam-manager-devdb
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root_password
